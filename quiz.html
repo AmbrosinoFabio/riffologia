@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz Metal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">VI</span>
+    <span class="kicker">Capitolo VI</span>
+    <h1 class="h1" style="margin:16px 0">Quanto sei<br><span class="outline">metallaro?</span></h1>
+    <p class="lead">10 domande estratte a caso da un archivio che va dal 1970 al 2026. Record personale: <b class="gold" id="best">—</b></p>
+  </div></header>
+  <section><div class="wrap" style="max-width:860px">
+    <div class="wizard" id="quiz"></div>
+  </div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+const N = 10;
+let qs = [], i = 0, pts = 0;
+const RANKS = [[0,"Poser","Torna ad ascoltare i Black Sabbath dall'inizio."],[4,"Headbanger","Buona base: ora approfondisci i sottogeneri."],[7,"Metal Head","Sai il fatto tuo. Il pogo ti aspetta."],[10,"Metal God","Rob Halford ti cede il trono."]];
+function best(){ const b = store.get("quizBest", null); $("#best").textContent = b === null ? "—" : `${b}/${N}`; }
+function start(){ qs = [...TRIVIA].sort(() => Math.random() - .5).slice(0, N); i = 0; pts = 0; q(); }
+function q(){
+  if(i >= N) return end();
+  const x = qs[i];
+  $("#quiz").innerHTML = `<div class="wiz-top"><span class="mono">Domanda ${i+1}/${N}</span><span class="mono gold">Punti: ${pts}</span></div>
+    <div class="wiz-bar"><i style="width:${i/N*100}%"></i></div>
+    <div class="wiz-body"><h2 class="wiz-q">${esc(x.q)}</h2><div class="quiz-ans">${x.a.map((a,k) => `<button data-k="${k}">${String.fromCharCode(65+k)}. ${esc(a)}</button>`).join("")}</div><div id="next"></div></div>`;
+}
+function end(){
+  const r = [...RANKS].reverse().find(([m]) => pts >= m);
+  const b = store.get("quizBest", 0); if(pts > b) store.set("quizBest", pts); best();
+  $("#quiz").innerHTML = `<div class="wiz-body" style="text-align:center"><span class="kicker">Risultato</span>
+    <div class="h-mega" style="margin:16px 0">${pts}<span class="outline">/${N}</span></div>
+    <h2 class="h2 red">${r[1]}</h2><p class="lead" style="margin:12px auto 28px">${r[2]}</p>
+    <button class="btn" id="again">Rigioca 🤘</button></div>`;
+}
+$("#quiz").onclick = e => {
+  if(e.target.closest("#again") || e.target.closest("#start")) return start();
+  if(e.target.closest("#go")){ i++; return q(); }
+  const b = e.target.closest("[data-k]"); if(!b || b.disabled) return;
+  const x = qs[i], k = +b.dataset.k;
+  $$("#quiz [data-k]").forEach((el,j) => { el.disabled = true; if(j === x.c) el.classList.add("right"); });
+  if(k === x.c) pts++; else b.classList.add("wrong");
+  $("#next").innerHTML = `<button class="btn mt" id="go">${i+1 < N ? "Prossima →" : "Vedi risultato"}</button>`;
+  $("#go").focus();
+};
+$("#quiz").innerHTML = `<div class="wiz-body" style="text-align:center"><p class="lead" style="margin:0 auto 24px">Pronto? Nessun limite di tempo, ma niente Google.</p><button class="btn" id="start">Inizia il quiz</button></div>`;
+best();
+</script>
+</body>
+</html>

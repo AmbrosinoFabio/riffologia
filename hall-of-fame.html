@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hall of Fame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">IV</span>
+    <span class="kicker" style="color:var(--gold)">Capitolo IV</span>
+    <h1 class="h1" style="margin:16px 0">Hall of <span class="blk" style="color:var(--gold)">Fame</span></h1>
+    <p class="lead">I più grandi chitarristi, cantanti, batteristi e bassisti di sempre. La classifica parte dal voto della redazione: i tuoi voti la cambiano (fino a 3 per categoria).</p>
+  </div></header>
+
+  <section><div class="wrap">
+    <div class="tabs" id="tabs">
+      <button class="on" data-c="chitarristi">Chitarristi</button>
+      <button data-c="cantanti">Cantanti</button>
+      <button data-c="batteristi">Batteristi</button>
+      <button data-c="bassisti">Bassisti</button>
+    </div>
+    <div class="flex mb" style="justify-content:space-between">
+      <div class="chips" id="flt"><button class="chip on" data-f="">Tutti</button><button class="chip" data-f="alive">In attività</button><button class="chip" data-f="rip">Scomparsi †</button></div>
+      <span class="mono muted" id="left"></span>
+    </div>
+    <div id="rank" style="border:1px solid var(--line)"></div>
+  </div></section>
+
+  <section style="padding-top:0"><div class="wrap">
+    <div class="sec-head"><h2 class="h2">La tua band dei <span class="gold">sogni</span></h2>
+      <div class="flex"><button class="btn sm ghost" id="randBand">🎲 Casuale</button><button class="btn sm" id="share">Copia formazione</button></div></div>
+    <div class="dream" id="dream"></div>
+    <p class="mono muted mt" id="dreamName"></p>
+  </div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+const CATS = {chitarristi:"Chitarra", cantanti:"Voce", batteristi:"Batteria", bassisti:"Basso"};
+let cat = "chitarristi", flt = "";
+let votes = store.get("votes", {});           // {cat: [names]}
+let dream = store.get("dream", {});
+const MAXV = 3;
+
+function score(p, c){ return p.s + ((votes[c]||[]).includes(p.n) ? 5 : 0); }
+function vu(v){ const n = Math.round((v-75)/2.5); return `<div class="vu" aria-hidden="true">${Array.from({length:10},(_,i)=>`<i class="${i<n?"on"+(i>=8?" r":i>=6?" y":""):""}"></i>`).join("")}</div>`; }
+
+function render(){
+  const my = votes[cat] || [];
+  $("#left").textContent = `Voti disponibili: ${MAXV - my.length}/${MAXV}`;
+  const list = HOF[cat].filter(p => !flt || (flt==="rip" ? p.d : !p.d)).map(p => ({...p, sc:score(p,cat)})).sort((a,b) => b.sc - a.sc);
+  $("#rank").innerHTML = list.map((p,i) => `<div class="hof-row rv">
+    <span class="hof-rank">${String(i+1).padStart(2,"0")}</span>
+    <div><div class="hof-name">${esc(p.n)}${p.d?`<span class="rip">† ${p.d}</span>`:""}</div>
+      <div class="mono muted" style="margin-top:4px">${esc(p.b)} · ${esc(p.gear)}</div>
+      <p class="muted" style="font-size:.92rem;margin-top:4px">${esc(p.why)}</p>${vu(p.sc)}</div>
+    <div class="vote"><button data-v="${esc(p.n)}" class="${my.includes(p.n)?"voted":""}" aria-pressed="${my.includes(p.n)}" aria-label="Vota ${esc(p.n)}">▲</button><span>${p.sc}</span></div>
+  </div>`).join("");
+  reveal($("#rank"));
+}
+$("#rank").onclick = e => {
+  const b = e.target.closest("[data-v]"); if(!b) return;
+  const n = b.dataset.v, my = votes[cat] || [];
+  if(my.includes(n)) votes[cat] = my.filter(x => x !== n);
+  else if(my.length >= MAXV){ toast(`Hai già usato i ${MAXV} voti: togline uno`); return; }
+  else { votes[cat] = [...my, n]; toast(`🤘 Voto a ${n}`); }
+  store.set("votes", votes); render();
+};
+$("#tabs").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#tabs button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); cat = b.dataset.c; render(); };
+$("#flt").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#flt .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); flt = b.dataset.f; render(); };
+
+function renderDream(){
+  $("#dream").innerHTML = Object.entries(CATS).map(([c,r]) => {
+    const p = HOF[c].find(x => x.n === dream[c]);
+    return `<div class="slot"><span class="mono muted">${r}</span><div class="who">${p ? esc(p.n) : "—"}</div>
+      <span class="mono muted">${p ? esc(p.b) : "scegli un musicista"}</span>
+      <select data-c="${c}" aria-label="${r}"><option value="">Scegli…</option>${HOF[c].map(x => `<option ${x.n===dream[c]?"selected":""}>${esc(x.n)}</option>`).join("")}</select></div>`;
+  }).join("");
+  const full = Object.keys(CATS).every(c => dream[c]);
+  if(full){
+    const avg = Math.round(Object.keys(CATS).reduce((s,c) => s + HOF[c].find(x=>x.n===dream[c]).s, 0) / 4);
+    const dead = Object.keys(CATS).filter(c => HOF[c].find(x=>x.n===dream[c]).d).length;
+    $("#dreamName").innerHTML = `Potenza della band: <b class="gold">${avg}/100</b>${dead ? ` · ${dead} membr${dead>1?"i":"o"} dall'aldilà del rock 👻` : ""}`;
+  } else $("#dreamName").textContent = "Completa i quattro ruoli per calcolare la potenza della band.";
+}
+$("#dream").onchange = e => { const s = e.target.closest("select"); if(!s) return; dream[s.dataset.c] = s.value; store.set("dream", dream); renderDream(); };
+$("#randBand").onclick = () => { Object.keys(CATS).forEach(c => dream[c] = HOF[c][Math.floor(Math.random()*HOF[c].length)].n); store.set("dream", dream); renderDream(); };
+$("#share").onclick = async () => {
+  const txt = "La mia band dei sogni (Riffologia): " + Object.entries(CATS).map(([c,r]) => `${r}: ${dream[c]||"?"}`).join(" · ");
+  try{ await navigator.clipboard.writeText(txt); toast("Formazione copiata!"); }catch(e){ prompt("Copia la formazione:", txt); }
+};
+render(); renderDream();
+</script>
+</body>
+</html>

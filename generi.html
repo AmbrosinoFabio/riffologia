@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sottogeneri Metal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">II</span>
+    <span class="kicker">Capitolo II</span>
+    <h1 class="h1" style="margin:16px 0"><span id="gcount"></span> sottogeneri,<br><span class="outline">un solo albero</span></h1>
+    <p class="lead">Gira le manopole dell'ampli: alza il GAIN per i generi più pesanti, il TEMPO per i più veloci. Clicca un genere per scoprire origini e band.</p>
+  </div></header>
+
+  <section><div class="wrap">
+    <div class="amp mb">
+      <div class="knob"><div class="dial" id="d1"></div><label><span class="mono">Gain · pesantezza ≥ <span class="val" id="v1">1</span></span><input type="range" id="k1" min="1" max="10" value="1"></label></div>
+      <div class="knob"><div class="dial" id="d2"></div><label><span class="mono">Tempo · velocità ≥ <span class="val" id="v2">1</span></span><input type="range" id="k2" min="1" max="10" value="1"></label></div>
+      <div style="flex:1;min-width:200px"><label class="sr" for="q">Cerca</label><input type="search" id="q" placeholder="Cerca genere o band… (es. Gojira)"></div>
+      <select id="sort" aria-label="Ordina" style="width:auto"><option value="year">Ordina: anno</option><option value="int">Più pesanti</option><option value="spd">Più veloci</option><option value="name">A–Z</option></select>
+      <button class="btn sm" id="rand">🎲 Genere a caso</button>
+    </div>
+    <div class="chips mb" id="fams"></div>
+    <p class="mono muted mb" id="info"></p>
+    <div class="grid g3" id="list"></div>
+  </div></section>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="box"><button class="icon-btn close" id="mClose" aria-label="Chiudi">✕</button><div id="mBody"></div></div></div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+$("#gcount").textContent = GENRES.length;
+let fam = null;
+$("#fams").innerHTML = `<button class="chip on" data-f="">Tutte le famiglie</button>` + Object.entries(FAMILIES).map(([k,f]) => `<button class="chip" data-f="${k}"><span class="dot" style="background:${f.color}"></span>${f.name}</button>`).join("");
+
+function knob(i){ const v = +$("#k"+i).value; $("#v"+i).textContent = v; $("#d"+i).style.transform = `rotate(${-135 + (v-1)*30}deg)`; }
+function render(){
+  knob(1); knob(2);
+  const q = $("#q").value.trim().toLowerCase(), g = +$("#k1").value, s = +$("#k2").value, so = $("#sort").value;
+  let list = GENRES.filter(x => (!fam || x.fam === fam) && x.int >= g && x.spd >= s &&
+    (!q || (x.name + " " + x.bands.join(" ") + " " + x.desc).toLowerCase().includes(q)));
+  list.sort((a,b) => so==="name" ? a.name.localeCompare(b.name) : so==="year" ? a.year-b.year : b[so]-a[so]);
+  $("#info").textContent = `${list.length} generi trovati`;
+  $("#list").innerHTML = list.length ? list.map(x => `
+    <article class="card link rv" data-id="${x.id}" tabindex="0" role="button" aria-label="Dettagli ${esc(x.name)}">
+      <span class="fam-stripe" style="background:${FAMILIES[x.fam].color}"></span>
+      <div class="flex" style="justify-content:space-between"><span class="mono muted">${x.year} · ${esc(x.origin)}</span><span class="tag">${FAMILIES[x.fam].name}</span></div>
+      <h3 class="h3 glitch" style="margin:12px 0 8px">${esc(x.name)}</h3>
+      <p>${esc(x.desc)}</p>
+      <div class="mt"><span class="mono muted">Pesantezza ${x.int}/10</span><div class="bar"><i style="width:${x.int*10}%"></i></div>
+      <span class="mono muted">Velocità ${x.spd}/10</span><div class="bar spd"><i style="width:${x.spd*10}%"></i></div></div>
+    </article>`).join("") : `<p class="empty">Troppo gain! Nessun genere corrisponde: abbassa le manopole.</p>`;
+  reveal($("#list"));
+}
+function open(id){
+  const x = GENRES.find(g => g.id === id); if(!x) return;
+  const related = BANDS.filter(b => b.g === id);
+  const sib = GENRES.filter(g => g.fam === x.fam && g.id !== id);
+  $("#mBody").innerHTML = `
+    <span class="kicker">${FAMILIES[x.fam].name} · ${x.year}</span>
+    <h2 class="h1" id="mTitle" style="margin:12px 0">${esc(x.name)}</h2>
+    <p class="lead">${esc(x.desc)}</p>
+    <div class="grid g2 mt">
+      <div class="card"><span class="mono muted">Origine</span><h3 class="h3">${esc(x.origin)}</h3></div>
+      <div class="card"><span class="mono muted">Band chiave</span><h3 class="h3">${x.bands.map(esc).join(" · ")}</h3></div>
+    </div>
+    ${related.length ? `<h3 class="h3 mt">Nel nostro archivio</h3><div class="chips mt">${related.map(b => `<a class="chip" href="band.html#${encodeURIComponent(b.n)}">${esc(b.n)}</a>`).join("")}</div>` : ""}
+    <h3 class="h3 mt">Generi fratelli</h3><div class="chips mt">${sib.map(g => `<button class="chip" data-go="${g.id}">${esc(g.name)}</button>`).join("")}</div>`;
+  $("#modal").classList.add("show"); $("#mClose").focus();
+}
+$("#mBody").onclick = e => { const b = e.target.closest("[data-go]"); if(b) open(b.dataset.go); };
+$("#mClose").onclick = () => $("#modal").classList.remove("show");
+$("#modal").onclick = e => { if(e.target.id === "modal") $("#modal").classList.remove("show"); };
+document.addEventListener("keydown", e => { if(e.key === "Escape") $("#modal").classList.remove("show"); });
+$("#list").onclick = e => { const c = e.target.closest("[data-id]"); if(c) open(c.dataset.id); };
+$("#list").onkeydown = e => { if(e.key === "Enter"){ const c = e.target.closest("[data-id]"); if(c) open(c.dataset.id); } };
+$("#fams").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#fams .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); fam = b.dataset.f || null; render(); };
+["#k1","#k2","#q","#sort"].forEach(s => $(s).addEventListener("input", render));
+$("#rand").onclick = () => open(GENRES[Math.floor(Math.random()*GENRES.length)].id);
+render();
+</script>
+</body>
+</html>

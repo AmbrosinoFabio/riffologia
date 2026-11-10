@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Riffologia</title>
+<meta name="description" content="Enciclopedia interattiva di rock, hard rock e metal: storia, sottogeneri, band, Hall of Fame e scelta dello strumento.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="bg-word" aria-hidden="true">R</div>
+    <div class="wrap">
+      <span class="kicker">Dal 1954 al 2026 · rock · hard rock · metal</span>
+      <h1 class="h-mega" style="margin:20px 0 28px">Alza<br><span class="outline">il volume</span><br>della <span class="blk">storia</span></h1>
+      <p class="lead">Settant'anni di riff, 55 sottogeneri, le band che hanno fatto la storia e quelle che la stanno scrivendo adesso. Vota i tuoi eroi, componi la band dei sogni e trova lo strumento giusto per te.</p>
+      <div class="flex mt">
+        <a class="btn" href="storia.html">Inizia il viaggio →</a>
+        <a class="btn ghost" href="strumenti.html">Scegli la tua chitarra</a>
+      </div>
+      <div class="hero-stats" id="stats"></div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true"><div class="track" id="mq"></div></div>
+
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2 class="h2">Scegli il tuo <span class="red">percorso</span></h2><span class="mono muted">6 sezioni · tutto interattivo</span></div>
+      <div class="grid g3">
+        <a class="tile rv" href="storia.html"><span class="n">I</span><h3>Storia</h3><p>Linea del tempo dal rock'n'roll all'era dello streaming, decennio per decennio.</p><span class="arrow">ESPLORA →</span></a>
+        <a class="tile rv" href="generi.html"><span class="n">II</span><h3>Sottogeneri</h3><p>54 generi con manopole d'ampli per filtrarli per pesantezza e velocità.</p><span class="arrow">ESPLORA →</span></a>
+        <a class="tile rv" href="band.html"><span class="n">III</span><h3>Band</h3><p>Leggende ed emergenti, cambi di formazione e il muro della memoria.</p><span class="arrow">ESPLORA →</span></a>
+        <a class="tile rv" href="hall-of-fame.html"><span class="n">IV</span><h3>Hall of Fame</h3><p>Chitarristi, cantanti, batteristi e bassisti. Vota e costruisci la band dei sogni.</p><span class="arrow">VOTA →</span></a>
+        <a class="tile rv" href="strumenti.html"><span class="n">V</span><h3>Scegli lo strumento</h3><p>Wizard per chitarra, basso e batteria, catalogo filtrabile e confronto modelli.</p><span class="arrow">TROVA IL TUO →</span></a>
+        <a class="tile rv" href="quiz.html"><span class="n">VI</span><h3>Quiz</h3><p>Quanto ne sai davvero? 10 domande, dal 1970 a ieri.</p><span class="arrow">GIOCA →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head"><h2 class="h2">Ultime dal <span class="red">fronte</span></h2><span class="mono muted">2025 – 2026</span></div>
+      <div class="grid g3" id="news"></div>
+    </div>
+  </section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+  const stats = [[GENRES.length,"Sottogeneri"],[BANDS.length,"Band schedate"],[LINEUP.length,"Cambi di formazione"],[GUITARS.length+BASSES.length+DRUMS.length,"Strumenti"]];
+  $("#stats").innerHTML = stats.map(([n,l]) => `<div><b>${n}</b><span class="mono muted">${l}</span></div>`).join("");
+  const names = BANDS.map(b => b.n);
+  $("#mq").innerHTML = [...names, ...names].map(n => `<span>${esc(n)}</span>`).join("");
+  const news = [
+    ["Lutto","Venom","Cronos, voce e basso dei padri del black metal, muore a 63 anni (1 ottobre 2026)."],
+    ["Formazione","Arch Enemy","Lauren Hart (ex Once Human) è la nuova voce: primo singolo 'To The Last Breath'."],
+    ["Reunion","Rush","Geddy Lee e Alex Lifeson tornano dal vivo con Anika Nilles; nel 2027 residency allo Sphere."],
+    ["Addio","Megadeth","Album finale omonimo e tour mondiale d'addio per Dave Mustaine."],
+    ["Formazione","King Diamond","Gus G. sostituisce lo storico chitarrista Andy LaRocque."],
+    ["Emergenti","Sleep Token","'Even in Arcadia' al n.1 Billboard: il metal atmosferico è mainstream."]
+  ];
+  $("#news").innerHTML = news.map(([t,b,d]) => `<article class="card rv"><span class="tag ${t==="Lutto"?"red":"gold"}">${t}</span><h3 class="h3" style="margin:14px 0 8px">${b}</h3><p>${d}</p></article>`).join("");
+</script>
+</body>
+</html>

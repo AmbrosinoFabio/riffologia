@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Storia del Rock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">I</span>
+    <span class="kicker">Capitolo I</span>
+    <h1 class="h1" style="margin:16px 0">Settant'anni<br>di <span class="outline">distorsione</span></h1>
+    <p class="lead">Dal primo amplificatore tagliato col rasoio al concerto d'addio di Ozzy: come il rock è diventato hard rock, e l'hard rock è esploso in decine di forme di metal.</p>
+  </div></header>
+
+  <section style="padding-bottom:40px"><div class="wrap">
+    <div class="sec-head"><h2 class="h2">Le <span class="red">ere</span></h2><span class="mono muted">sintesi dell'analisi</span></div>
+    <div class="grid g3" id="eras"></div>
+  </div></section>
+
+  <section style="padding-top:20px"><div class="wrap">
+    <div class="sec-head"><h2 class="h2">Linea del <span class="red">tempo</span></h2>
+      <div class="chips" id="tags"></div></div>
+    <div class="decades mb" id="decades"></div>
+    <div class="tl" id="tl"></div>
+  </div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+const ERAS = [
+  ["1950–64","Le radici","Rock'n'roll da blues, R&B e country. Nascono Telecaster, Les Paul e Stratocaster: la chitarra elettrica diventa protagonista."],
+  ["1964–69","Il volume","British Invasion, blues rock e psichedelia. Kinks, Cream e Hendrix trasformano la distorsione in un linguaggio."],
+  ["1968–75","La nascita","Led Zeppelin e Deep Purple inventano l'hard rock; il 13/2/1970 i Black Sabbath inventano l'heavy metal."],
+  ["1975–84","La forgia","Judas Priest, punk, NWOBHM, Van Halen. Il metal trova look, velocità e chitarre gemelle."],
+  ["1983–91","L'esplosione","Thrash, glam, power, speed e i primi semi di death e black. Il metal riempie gli stadi e MTV."],
+  ["1990–99","La frammentazione","Il grunge abbatte il glam. Nascono groove, death floridiano, black norvegese, industrial e nu metal."],
+  ["2000–12","La globalizzazione","Metalcore, melodeath, symphonic e folk europei; Wacken diventa la Mecca."],
+  ["2012–20","L'era digitale","Djent, YouTube playthrough, Babymetal e la generazione bedroom producer."],
+  ["2020–26","Senza confini","Hardcore negli stadi, deathcore sinfonico, alt-metal R&B. Le leggende salutano; i nuovi eroi arrivano da TikTok."]
+];
+$("#eras").innerHTML = ERAS.map(([y,t,d],i) => `<article class="card rv"><span class="mono red">${y}</span><h3 class="h3" style="margin:8px 0">${t}</h3><p>${d}</p><span class="corner blk" style="font-size:1.8rem;color:var(--bg3)">${i+1}</span></article>`).join("");
+
+const decs = [...new Set(TIMELINE.map(e => Math.floor(e.y/10)*10))];
+let dec = null, tag = null;
+const TAGS = {rock:"Rock", hard:"Hard rock", metal:"Metal", estremo:"Estremo", strumenti:"Strumenti"};
+$("#decades").innerHTML = `<button class="on" data-d="">Tutto</button>` + decs.map(d => `<button data-d="${d}">'${String(d).slice(2)}</button>`).join("");
+$("#tags").innerHTML = Object.entries(TAGS).map(([k,v]) => `<button class="chip" data-t="${k}">${v}</button>`).join("");
+
+function render(){
+  const list = TIMELINE.filter(e => (!dec || Math.floor(e.y/10)*10 === dec) && (!tag || e.tag === tag));
+  $("#tl").innerHTML = list.length ? list.map(e => `<div class="tl-item rv"><div class="tl-year">${e.y}</div><div><span class="tag">${TAGS[e.tag]}</span><h3 style="margin-top:8px">${esc(e.t)}</h3><p>${esc(e.d)}</p></div></div>`).join("")
+    : `<p class="empty">Nessun evento per questo filtro.</p>`;
+  reveal($("#tl"));
+}
+$("#decades").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#decades button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); dec = b.dataset.d ? +b.dataset.d : null; render(); };
+$("#tags").onclick = e => { const b = e.target.closest("button"); if(!b) return; const on = !b.classList.contains("on"); $$("#tags .chip").forEach(x=>x.classList.remove("on")); if(on){ b.classList.add("on"); tag = b.dataset.t; } else tag = null; render(); };
+render();
+</script>
+</body>
+</html>

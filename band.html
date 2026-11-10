@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Band e Formazioni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">III</span>
+    <span class="kicker">Capitolo III</span>
+    <h1 class="h1" style="margin:16px 0">Leggende,<br><span class="outline">nuove leve</span><br>e chi non c'è più</h1>
+    <p class="lead">Le band che hanno costruito il genere, quelle che lo stanno reinventando nel 2026, chi ha preso il microfono o la chitarra di chi se n'è andato.</p>
+  </div></header>
+
+  <section><div class="wrap">
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="on" data-t="storica">Storiche</button>
+      <button data-t="emergente">Emergenti 2026</button>
+      <button data-t="italia">Italia</button>
+      <button data-t="fav">I miei preferiti <span id="favN" class="mono"></span></button>
+      <button data-t="lineup">Cambi di formazione</button>
+      <button data-t="mem">In memoriam</button>
+    </div>
+
+    <div id="pBands">
+      <div class="flex mb">
+        <input type="search" id="q" placeholder="Cerca band, album, paese…" style="flex:1;min-width:220px" aria-label="Cerca band">
+        <select id="st" style="width:auto" aria-label="Stato"><option value="">Tutti gli stati</option></select>
+      </div>
+      <div class="grid g3" id="bands"></div>
+    </div>
+
+    <div id="pLineup" hidden>
+      <p class="lead mb">Voci, chitarre, bassi e batterie che hanno cambiato padrone. In rosso i cambi dovuti a un lutto.</p>
+      <div class="flex mb">
+        <input type="search" id="lq" placeholder="Cerca musicista o band…" style="flex:1;min-width:220px" aria-label="Cerca cambi">
+        <div class="chips" id="why"></div>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>Anno</th><th>Band</th><th>Ruolo</th><th>Esce</th><th></th><th>Entra</th><th>Note</th></tr></thead><tbody id="lt"></tbody></table></div>
+    </div>
+
+    <div id="pMem" hidden>
+      <p class="lead mb">Un muro per chi ha dato la vita al volume. Evidenziati gli addii degli ultimi due anni.</p>
+      <div class="chips mb" id="memRole"></div>
+      <div class="mem" id="mem"></div>
+    </div>
+  </div></section>
+</main>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+let tab = "storica", why = null, memRole = null;
+let favs = store.get("favBands", []);
+const ITA = b => b.c === "Italia";
+const STATES = [...new Set(BANDS.map(b => b.st))];
+$("#st").innerHTML += STATES.map(s => `<option>${s}</option>`).join("");
+const WHY = {decesso:"Decesso", uscita:"Uscita", licenziamento:"Licenziamento", ritiro:"Ritiro", ritorno:"Ritorno"};
+$("#why").innerHTML = Object.entries(WHY).map(([k,v]) => `<button class="chip" data-w="${k}">${v}</button>`).join("");
+const roles = ["voce","chitarra","basso","batteria"];
+$("#memRole").innerHTML = `<button class="chip on" data-r="">Tutti</button>` + roles.map(r => `<button class="chip" data-r="${r}">${r}</button>`).join("");
+
+function genreName(id){ const g = GENRES.find(x => x.id === id); return g ? g.name : id; }
+function updFav(){ $("#favN").textContent = favs.length ? `(${favs.length})` : ""; }
+
+function renderBands(){
+  const q = $("#q").value.trim().toLowerCase(), st = $("#st").value;
+  let list = BANDS.filter(b => tab === "italia" ? ITA(b) : tab === "fav" ? favs.includes(b.n) : b.type === tab);
+  list = list.filter(b => (!st || b.st === st) && (!q || [b.n,b.alb,b.c,b.note,genreName(b.g)].join(" ").toLowerCase().includes(q)));
+  $("#bands").innerHTML = list.length ? list.map(b => {
+    const ch = LINEUP.filter(l => l.b === b.n);
+    const fav = favs.includes(b.n);
+    return `<article class="card rv" id="${encodeURIComponent(b.n)}">
+      <div class="flex" style="justify-content:space-between"><span class="mono muted">${esc(b.c)} · ${esc(b.y)}</span>
+      <button class="icon-btn" data-fav="${esc(b.n)}" aria-pressed="${fav}" title="Aggiungi ai preferiti" style="width:34px;height:34px;${fav?"color:var(--red);border-color:var(--red)":""}">${fav?"♥":"♡"}</button></div>
+      <h3 class="h3 glitch" style="margin:10px 0 6px;font-size:1.9rem">${esc(b.n)}</h3>
+      <div class="meta"><span class="tag ${b.type==="emergente"?"gold":""}">${esc(genreName(b.g))}</span><span class="tag ${b.st==="lutto"||b.st==="sciolti"?"red":""}">${esc(b.st)}</span></div>
+      <p><b style="color:var(--ink)">Album chiave:</b> ${esc(b.alb)}</p>
+      <p style="margin-top:6px">${esc(b.note)}</p>
+      ${ch.length ? `<details class="mt"><summary class="mono" style="cursor:pointer;color:var(--red)">${ch.length} ${ch.length===1?"cambio":"cambi"} di formazione</summary>
+        <ul style="list-style:none;margin-top:10px">${ch.map(l => `<li style="padding:6px 0;border-top:1px solid var(--line);font-size:.9rem"><span class="mono muted">${l.y} · ${esc(l.r)}</span><br>${esc(l.out)} <span class="red">→</span> ${esc(l.inn)}</li>`).join("")}</ul></details>` : ""}
+    </article>`;
+  }).join("") : `<p class="empty">${tab==="fav" ? "Nessun preferito: tocca ♡ su una band per aggiungerla." : "Nessuna band trovata."}</p>`;
+  reveal($("#bands"));
+}
+function renderLineup(){
+  const q = $("#lq").value.trim().toLowerCase();
+  const list = LINEUP.filter(l => (!why || l.why === why) && (!q || [l.b,l.out,l.inn,l.r].join(" ").toLowerCase().includes(q))).sort((a,b) => b.y - a.y);
+  $("#lt").innerHTML = list.map(l => `<tr><td class="mono">${l.y}</td><td><b>${esc(l.b)}</b></td><td>${esc(l.r)}</td>
+    <td style="${l.why==="decesso"?"color:var(--red)":""}">${esc(l.out)}${l.why==="decesso"?" †":""}</td><td class="arrow">→</td><td>${esc(l.inn)}</td>
+    <td class="muted"><span class="tag ${l.why==="decesso"?"red":""}">${WHY[l.why]}</span> ${esc(l.note)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nessun risultato.</td></tr>`;
+}
+function renderMem(){
+  const list = MEMORIAM.filter(m => !memRole || m[2].includes(memRole)).sort((a,b) => b[1]-a[1]);
+  $("#mem").innerHTML = list.map(([n,y,r]) => `<div class="${y>=2025?"recent":""}"><span class="cross">† ${y}</span><b>${esc(n)}</b><span class="mono muted">${esc(r)}</span></div>`).join("");
+}
+function show(t){
+  tab = t;
+  $$("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
+  $("#pBands").hidden = !["storica","emergente","italia","fav"].includes(t);
+  $("#pLineup").hidden = t !== "lineup";
+  $("#pMem").hidden = t !== "mem";
+  if(!$("#pBands").hidden) renderBands();
+  if(t === "lineup") renderLineup();
+  if(t === "mem") renderMem();
+}
+$("#tabs").onclick = e => { const b = e.target.closest("button"); if(b) show(b.dataset.t); };
+$("#q").oninput = renderBands; $("#st").onchange = renderBands; $("#lq").oninput = renderLineup;
+$("#why").onclick = e => { const b = e.target.closest("button"); if(!b) return; const on = !b.classList.contains("on"); $$("#why .chip").forEach(x=>x.classList.remove("on")); if(on){ b.classList.add("on"); why = b.dataset.w; } else why = null; renderLineup(); };
+$("#memRole").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#memRole .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); memRole = b.dataset.r || null; renderMem(); };
+$("#bands").onclick = e => {
+  const b = e.target.closest("[data-fav]"); if(!b) return;
+  const n = b.dataset.fav;
+  favs = favs.includes(n) ? favs.filter(x => x !== n) : [...favs, n];
+  store.set("favBands", favs); updFav(); toast(favs.includes(n) ? `♥ ${n} aggiunta ai preferiti` : `${n} rimossa`); renderBands();
+};
+updFav();
+const hash = decodeURIComponent(location.hash.slice(1));
+const hb = BANDS.find(b => b.n === hash);
+if(hb){ show(hb.type); $("#q").value = hb.n; renderBands(); } else show("storica");
+</script>
+</body>
+</html>

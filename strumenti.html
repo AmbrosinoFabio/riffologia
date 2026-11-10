@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scegli lo Strumento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+  <header class="page-hero"><div class="wrap">
+    <span class="num" aria-hidden="true">V</span>
+    <span class="kicker">Capitolo V</span>
+    <h1 class="h1" style="margin:16px 0">Scegli la tua<br><span class="outline" id="heroWord">chitarra</span></h1>
+    <p class="lead">Rispondi a poche domande e ti diciamo quale strumento fa per te, oppure sfoglia il catalogo e confronta fino a tre modelli fianco a fianco.</p>
+  </div></header>
+
+  <section><div class="wrap">
+    <div class="tabs" id="inst">
+      <button class="on" data-i="guitar">🎸 Chitarra</button>
+      <button data-i="bass">Basso</button>
+      <button data-i="drums">🥁 Batteria</button>
+    </div>
+
+    <div class="wizard" id="wiz"></div>
+
+    <div class="sec-head mt" style="margin-top:80px"><h2 class="h2">Catalogo <span class="red" id="catName"></span></h2><span class="mono muted" id="catN"></span></div>
+    <div class="flex mb">
+      <input type="search" id="q" placeholder="Cerca modello, marca, musicista…" style="flex:1;min-width:220px" aria-label="Cerca strumento">
+      <select id="tier" style="width:auto" aria-label="Budget"><option value="">Ogni budget</option><option value="1">€ · fino a 600</option><option value="2">€€ · 600–1500</option><option value="3">€€€ · oltre 1500</option></select>
+    </div>
+    <div class="chips mb" id="gen"></div>
+    <div class="grid g3" id="cat"></div>
+  </div></section>
+</main>
+
+<div class="tray" id="tray"><span class="mono" id="trayTxt"></span><button class="btn sm" id="cmpGo">Confronta</button><button class="btn sm ghost" id="cmpClr" style="color:var(--bg);border-color:var(--bg)">Svuota</button></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box" style="max-width:1100px"><button class="icon-btn close" id="mClose" aria-label="Chiudi">✕</button><div id="mBody"></div></div></div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+const DB = { guitar:GUITARS, bass:BASSES, drums:DRUMS };
+const NAME = { guitar:"chitarra", bass:"basso", drums:"batteria" };
+const GEN = { classic:"Hard rock classico", heavy:"Heavy / thrash", extreme:"Death / black / core", modern:"Djent / nu / moderno", prog:"Prog / virtuoso", alt:"Grunge / alternative" };
+const TIER = {1:"€", 2:"€€", 3:"€€€"};
+let inst = "guitar", step = 0, ans = {}, gen = null, cmp = [];
+
+function questions(){
+  const q = [
+    { k:"gen", q:"Che musica vuoi suonare?", o:Object.entries(GEN).map(([v,l]) => [v,l,""]) },
+    { k:"sound", q:"Che suono cerchi?", o:[["warm","Caldo e pieno","Sustain, medie corpose, vintage"],["bright","Brillante","Definizione, attacco, chiarezza"],["aggressive","Aggressivo","Tanto gain, basse strette, precisione"],["versatile","Versatile","Un po' di tutto"]] },
+    { k:"tier", q:"Quanto vuoi spendere?", o:[["1","Fino a 600 €","Per iniziare o come muletto"],["2","600 – 1500 €","Il punto ideale qualità/prezzo"],["3","Oltre 1500 €","Strumento per la vita"]] },
+    { k:"level", q:"Il tuo livello?", o:[["beginner","Principiante","Ho appena iniziato"],["intermediate","Intermedio","Suono in una band"],["pro","Avanzato","Live, studio, insegnamento"]] }
+  ];
+  if(inst === "guitar") q.push({ k:"strings", q:"Quante corde?", o:[["6","6 corde","Lo standard di sempre"],["7","7 o 8 corde","Nu metal, djent, deathcore"],["any","Non lo so","Decidete voi"]] });
+  if(inst === "bass") q.push({ k:"strings", q:"Quante corde?", o:[["4","4 corde","Classico e immediato"],["5","5 corde","Si basso per il metal moderno"],["any","Non lo so","Decidete voi"]] });
+  q.push({ k:"look", q:"Che look ti rappresenta?", o: inst==="drums"
+    ? [["classic","Vintage","Finiture classiche, legno, sparkle"],["modern","Moderno","Hardware massiccio, finiture nere"]]
+    : [["classic","Classico","Forme senza tempo"],["pointy","Spigoloso","V, Explorer, Warlock: pura attitudine"],["modern","Moderno","Superstrat, headless, ergonomia"]] });
+  return q;
+}
+
+function scoreOf(x){
+  let s = 0, max = 0;
+  max += 35; if(x.gen.includes(ans.gen)) s += 35;
+  max += 20; if(x.sound === ans.sound) s += 20; else if(x.sound === "versatile" || ans.sound === "versatile") s += 10;
+  max += 20; const t = +ans.tier; if(x.tier === t) s += 20; else if(x.tier < t) s += 12; else s -= 10;
+  max += 15; if(x.level.includes(ans.level)) s += 15;
+  max += 10; if(x.look === ans.look) s += 10;
+  if(ans.strings && ans.strings !== "any" && x.strings){ max += 15; if(inst==="guitar" ? (ans.strings==="6" ? x.strings===6 : x.strings>=7) : (ans.strings==="4" ? x.strings===4 : x.strings>=5)) s += 15; }
+  return Math.max(0, Math.round(s / max * 100));
+}
+
+function renderWiz(){
+  const Q = questions();
+  if(step >= Q.length) return renderResult();
+  const q = Q[step];
+  $("#wiz").innerHTML = `<div class="wiz-top"><span class="mono">Wizard · ${NAME[inst]}</span><span class="mono muted">Domanda ${step+1} / ${Q.length}</span></div>
+    <div class="wiz-bar"><i style="width:${step/Q.length*100}%"></i></div>
+    <div class="wiz-body"><h2 class="wiz-q">${q.q}</h2>
+      <div class="opts">${q.o.map(([v,l,d]) => `<button class="opt" data-k="${q.k}" data-v="${v}"><b>${l}</b>${d?`<span>${d}</span>`:""}</button>`).join("")}</div>
+      ${step ? `<button class="btn sm ghost mt" id="back">← Indietro</button>` : ""}</div>`;
+}
+function renderResult(){
+  const all = DB[inst].map(x => ({...x, sc:scoreOf(x)})).sort((a,b) => b.sc - a.sc);
+  let picks;
+  if(inst === "drums"){
+    picks = ["Kit","Elettronica","Piatti","Pedale"].map(k => all.find(x => x.kind === k)).filter(Boolean);
+    if(!["heavy","extreme","modern"].includes(ans.gen)) picks = picks.filter(x => x.kind !== "Pedale");
+    const kit = all.find(x => x.kind==="Kit"), el = all.find(x => x.kind==="Elettronica");
+    picks = picks.filter(x => x.kind !== (kit.sc >= el.sc ? "Elettronica" : "Kit"));
+  } else picks = all.slice(0,3);
+  store.set("wiz_"+inst, ans);
+  $("#wiz").innerHTML = `<div class="wiz-top"><span class="mono">Il tuo risultato · ${NAME[inst]}</span><button class="btn sm ghost" id="again">Rifai il test</button></div>
+    <div class="wiz-bar"><i style="width:100%"></i></div>
+    <div class="wiz-body"><h2 class="wiz-q">${inst==="drums" ? "Il tuo setup ideale" : "I tuoi tre match migliori"}</h2>
+    <div class="result">${picks.map((x,i) => `<div class="card"><span class="mono muted">${inst==="drums" ? x.kind : (i===0?"Scelta n.1":"Alternativa")}</span>
+      <div class="match">${x.sc}%</div><h3 class="h3" style="margin:6px 0">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
+      <p class="mono muted mt" style="font-size:.72rem">${esc(x.price)}</p><p class="mono" style="font-size:.72rem;margin-top:6px">Suonata da: ${esc(x.players)}</p></div>`).join("")}</div></div>`;
+}
+$("#wiz").onclick = e => {
+  if(e.target.closest("#back")){ step--; return renderWiz(); }
+  if(e.target.closest("#again")){ step = 0; ans = {}; return renderWiz(); }
+  const o = e.target.closest(".opt"); if(!o) return;
+  ans[o.dataset.k] = o.dataset.v; step++; renderWiz();
+};
+
+function renderCat(){
+  const q = $("#q").value.trim().toLowerCase(), t = $("#tier").value;
+  const list = DB[inst].filter(x => (!gen || x.gen.includes(gen)) && (!t || x.tier === +t) && (!q || [x.m,x.brand,x.players,x.desc].join(" ").toLowerCase().includes(q)));
+  $("#catN").textContent = `${list.length} modelli`;
+  $("#cat").innerHTML = list.length ? list.map(x => `<article class="card rv">
+    <div class="flex" style="justify-content:space-between"><span class="mono muted">${esc(x.brand)}${x.kind?" · "+x.kind:""}</span><span class="tag gold">${TIER[x.tier]}</span></div>
+    <h3 class="h3" style="margin:10px 0 6px">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
+    <div class="meta">${x.gen.map(g => `<span class="tag">${GEN[g] || g}</span>`).join("")}</div>
+    <p class="mono muted" style="font-size:.72rem">${esc(x.price)}</p>
+    <button class="cmp-btn mt ${cmp.includes(x.m)?"on":""}" data-c="${esc(x.m)}">${cmp.includes(x.m) ? "✓ In confronto" : "+ Confronta"}</button>
+  </article>`).join("") : `<p class="empty">Nessun modello con questi filtri.</p>`;
+  reveal($("#cat"));
+}
+function renderGen(){ $("#gen").innerHTML = `<button class="chip ${!gen?"on":""}" data-g="">Tutti i generi</button>` + Object.entries(GEN).map(([k,v]) => `<button class="chip ${gen===k?"on":""}" data-g="${k}">${v}</button>`).join(""); }
+$("#gen").onclick = e => { const b = e.target.closest("button"); if(!b) return; gen = b.dataset.g || null; renderGen(); renderCat(); };
+$("#q").oninput = renderCat; $("#tier").onchange = renderCat;
+
+function tray(){ $("#tray").classList.toggle("show", cmp.length > 0); $("#trayTxt").textContent = `${cmp.length}/3 in confronto`; }
+$("#cat").onclick = e => {
+  const b = e.target.closest("[data-c]"); if(!b) return;
+  const m = b.dataset.c;
+  if(cmp.includes(m)) cmp = cmp.filter(x => x !== m);
+  else if(cmp.length >= 3) return toast("Massimo 3 modelli");
+  else cmp.push(m);
+  tray(); renderCat();
+};
+$("#cmpClr").onclick = () => { cmp = []; tray(); renderCat(); };
+$("#cmpGo").onclick = () => {
+  const xs = cmp.map(m => DB[inst].find(x => x.m === m));
+  const rows = inst === "drums"
+    ? [["Marca","brand"],["Tipo","kind"],["Materiale","wood"],["Prezzo","price"],["Musicisti","players"]]
+    : [["Marca","brand"],["Corpo","body"],["Pickup","pick"],["Corde","strings"],["Scala","scale"],["Ponte","bridge"],["Prezzo","price"],["Musicisti","players"]];
+  $("#mBody").innerHTML = `<span class="kicker">Confronto</span><h2 class="h2" style="margin:10px 0 24px">Testa a testa</h2>
+    <div class="tbl-wrap"><table><thead><tr><th></th>${xs.map(x => `<th style="font-size:.8rem;color:var(--ink)">${esc(x.m)}</th>`).join("")}</tr></thead><tbody>
+    ${rows.filter(([,k]) => xs.some(x => x[k])).map(([l,k]) => `<tr><th>${l}</th>${xs.map(x => `<td>${esc(x[k] ?? "—")}</td>`).join("")}</tr>`).join("")}
+    <tr><th>Suono</th>${xs.map(x => `<td>${({warm:"Caldo",bright:"Brillante",aggressive:"Aggressivo",versatile:"Versatile"})[x.sound]}</td>`).join("")}</tr>
+    <tr><th>Budget</th>${xs.map(x => `<td class="gold">${TIER[x.tier]}</td>`).join("")}</tr>
+    <tr><th>Generi</th>${xs.map(x => `<td>${x.gen.map(g => GEN[g] || g).join(", ")}</td>`).join("")}</tr>
+    </tbody></table></div>`;
+  $("#modal").classList.add("show");
+};
+$("#mClose").onclick = () => $("#modal").classList.remove("show");
+$("#modal").onclick = e => { if(e.target.id === "modal") $("#modal").classList.remove("show"); };
+document.addEventListener("keydown", e => { if(e.key === "Escape") $("#modal").classList.remove("show"); });
+
+function setInst(i){
+  inst = i; step = 0; ans = {}; gen = null; cmp = []; tray();
+  $$("#inst button").forEach(b => b.classList.toggle("on", b.dataset.i === i));
+  $("#heroWord").textContent = NAME[i]; $("#catName").textContent = NAME[i];
+  renderWiz(); renderGen(); renderCat();
+}
+$("#inst").onclick = e => { const b = e.target.closest("button"); if(b) setInst(b.dataset.i); };
+const h = location.hash.slice(1); setInst(DB[h] ? h : "guitar");
+</script>
+</body>
+</html>
