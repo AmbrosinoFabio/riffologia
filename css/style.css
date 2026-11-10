@@ -92,7 +92,9 @@ input[type=search],input[type=text],select{background:var(--bg2);border:1px soli
 input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 
 /* ---------- grids & cards ---------- */
-.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+[hidden]{display:none!important}
+.grid{display:grid;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.grid>*{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .g2{grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr))}
 .g3{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 .g4{grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr))}
@@ -161,7 +163,8 @@ tr:hover td{background:var(--bg2)}
 td .arrow{color:var(--red);font-weight:700}
 
 /* ---------- memoriam ---------- */
-.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.mem{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.mem>div{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .mem div{background:var(--bg);padding:16px 18px}
 .mem b{display:block;font-family:var(--f-display);font-weight:400;font-size:1.25rem;text-transform:uppercase;line-height:1.1}
 .mem .cross{color:var(--red);font-family:var(--f-mono);font-size:.75rem}
@@ -209,7 +212,8 @@ td .arrow{color:var(--red);font-weight:700}
 .opt b{font-family:var(--f-display);font-weight:400;font-size:1.3rem;text-transform:uppercase}
 .opt span{color:var(--ink2);font-size:.88rem}
 .opt:hover{border-color:var(--red);transform:translateY(-2px)}
-.result{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.result{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr));border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.result>*{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .result .card:first-child{background:var(--bg2);box-shadow:inset 0 4px 0 var(--red)}
 .match{font-family:var(--f-display);font-size:3rem;line-height:1;color:var(--red)}
 

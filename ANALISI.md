@@ -27,9 +27,9 @@
 
 ---
 
-## 2. Sottogeneri mappati (55)
+## 2. Sottogeneri mappati (56)
 
-Suddivisi in 6 famiglie: **Radici** (rock'n'roll, blues rock, hard rock, psichedelia, prog, glam, punk, southern, stoner rock…), **Heavy classico** (heavy, NWOBHM, speed, power, glam metal, epic, neoclassico), **Estremo** (thrash, crossover, death, melodeath, tech death, brutal death, black, atmospheric black, blackgaze, war metal, grindcore, deathcore), **Lento & pesante** (doom, funeral doom, stoner metal, sludge, drone, gothic, post-metal), **Moderno & alternativo** (grunge, alt metal, groove, industrial, nu metal, metalcore, post-hardcore, mathcore, djent, prog metal, avant-garde, kawaii metal, trap metal, nu-metalcore, hardcore moderno, alt-metal "atmosferico"), **Epico & folk** (symphonic, folk, viking, pagan, celtic, pirate, Oriental).
+Suddivisi in 6 famiglie: **Radici** (rock'n'roll, blues rock, hard rock, psichedelia, prog, glam, punk, southern, stoner rock…), **Heavy classico** (heavy, NWOBHM, speed, power, glam metal, epic, neoclassico), **Estremo** (thrash, crossover, death, melodeath, tech death, brutal death, black, atmospheric black, blackgaze, war metal, grindcore, deathcore), **Lento & pesante** (doom, funeral doom, stoner metal, sludge, drone, gothic, post-metal), **Moderno & alternativo** (grunge, alt metal, groove, industrial, nu metal, metalcore, post-hardcore, mathcore, djent, prog metal, avant-garde, kawaii metal, trap metal, nu-metalcore, hardcore moderno, alt-metal "atmosferico", alternative rock/post-grunge), **Epico & folk** (symphonic, folk, viking, pagan, celtic, pirate, Oriental).
 
 Tutti i dettagli sono in `js/data.js` (descrizione, origine, anno, intensità, velocità, band chiave).
 

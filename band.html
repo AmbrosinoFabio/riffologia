@@ -30,8 +30,13 @@
       <div class="flex mb">
         <input type="search" id="q" placeholder="Cerca band, album, paese…" style="flex:1;min-width:220px" aria-label="Cerca band">
         <select id="st" style="width:auto" aria-label="Stato"><option value="">Tutti gli stati</option></select>
+        <select id="gf" style="width:auto" aria-label="Genere"><option value="">Tutti i generi</option></select>
+        <select id="cf" style="width:auto" aria-label="Paese"><option value="">Tutti i paesi</option></select>
+        <select id="so" style="width:auto" aria-label="Ordina"><option value="az">A–Z</option><option value="za">Z–A</option><option value="old">Più vecchie</option><option value="new">Più recenti</option><option value="ch">Più cambi di formazione</option></select>
       </div>
+      <div class="flex mb" style="justify-content:space-between"><span class="mono muted" id="bn"></span><div class="chips" id="az"></div></div>
       <div class="grid g3" id="bands"></div>
+      <div style="text-align:center" class="mt"><button class="btn ghost" id="more" hidden>Carica altre band</button></div>
     </div>
 
     <div id="pLineup" hidden>
@@ -51,6 +56,7 @@
   </div></section>
 </main>
 <script src="js/data.js"></script>
+<script src="js/bands-extra.js"></script>
 <script src="js/main.js"></script>
 <script>
 let tab = "storica", why = null, memRole = null;
@@ -66,10 +72,33 @@ $("#memRole").innerHTML = `<button class="chip on" data-r="">Tutti</button>` + r
 function genreName(id){ const g = GENRES.find(x => x.id === id); return g ? g.name : id; }
 function updFav(){ $("#favN").textContent = favs.length ? `(${favs.length})` : ""; }
 
+const PAGE = 30;
+let shown = PAGE, letter = "";
+const yearOf = b => parseInt(b.y) || 9999;
+const chCount = n => LINEUP.filter(l => l.b === n).length;
+const sortName = n => n.replace(/^The /, "");
+function fillSelects(){
+  const used = [...new Set(BANDS.map(b => b.g))].map(id => [id, genreName(id)]).sort((a,b) => a[1].localeCompare(b[1]));
+  $("#gf").innerHTML += used.map(([id,n]) => `<option value="${id}">${esc(n)}</option>`).join("");
+  const cs = [...new Set(BANDS.map(b => b.c))].sort((a,b) => a.localeCompare(b));
+  $("#cf").innerHTML += cs.map(c => `<option>${esc(c)}</option>`).join("");
+  const letters = [...new Set(BANDS.map(b => sortName(b.n)[0].toUpperCase()))].filter(l => /[A-Z]/.test(l)).sort();
+  $("#az").innerHTML = `<button class="chip on" data-l="">Tutte</button>` + letters.map(l => `<button class="chip" data-l="${l}" style="padding:7px 9px">${l}</button>`).join("") + `<button class="chip" data-l="#" style="padding:7px 9px">#</button>`;
+}
 function renderBands(){
-  const q = $("#q").value.trim().toLowerCase(), st = $("#st").value;
+  const q = $("#q").value.trim().toLowerCase(), st = $("#st").value, gf = $("#gf").value, cf = $("#cf").value, so = $("#so").value;
   let list = BANDS.filter(b => tab === "italia" ? ITA(b) : tab === "fav" ? favs.includes(b.n) : b.type === tab);
-  list = list.filter(b => (!st || b.st === st) && (!q || [b.n,b.alb,b.c,b.note,genreName(b.g)].join(" ").toLowerCase().includes(q)));
+  list = list.filter(b => (!st || b.st === st) && (!gf || b.g === gf) && (!cf || b.c === cf) &&
+    (!letter || (letter === "#" ? !/[A-Z]/i.test(sortName(b.n)[0]) : sortName(b.n)[0].toUpperCase() === letter)) &&
+    (!q || [b.n,b.alb,b.c,b.note,genreName(b.g)].join(" ").toLowerCase().includes(q)));
+  const cmp = { az:(a,b) => sortName(a.n).localeCompare(sortName(b.n)), za:(a,b) => sortName(b.n).localeCompare(sortName(a.n)),
+    old:(a,b) => yearOf(a) - yearOf(b), new:(a,b) => yearOf(b) - yearOf(a), ch:(a,b) => chCount(b.n) - chCount(a.n) };
+  list.sort(cmp[so]);
+  const total = list.length;
+  $("#bn").textContent = `${total} band`;
+  list = list.slice(0, shown);
+  $("#more").hidden = total <= shown;
+  $("#more").textContent = `Carica altre band (${total - shown} rimanenti)`;
   $("#bands").innerHTML = list.length ? list.map(b => {
     const ch = LINEUP.filter(l => l.b === b.n);
     const fav = favs.includes(b.n);
@@ -97,8 +126,9 @@ function renderMem(){
   const list = MEMORIAM.filter(m => !memRole || m[2].includes(memRole)).sort((a,b) => b[1]-a[1]);
   $("#mem").innerHTML = list.map(([n,y,r]) => `<div class="${y>=2025?"recent":""}"><span class="cross">† ${y}</span><b>${esc(n)}</b><span class="mono muted">${esc(r)}</span></div>`).join("");
 }
+function resetPage(){ shown = PAGE; renderBands(); }
 function show(t){
-  tab = t;
+  tab = t; shown = PAGE;
   $$("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.t === t));
   $("#pBands").hidden = !["storica","emergente","italia","fav"].includes(t);
   $("#pLineup").hidden = t !== "lineup";
@@ -108,7 +138,10 @@ function show(t){
   if(t === "mem") renderMem();
 }
 $("#tabs").onclick = e => { const b = e.target.closest("button"); if(b) show(b.dataset.t); };
-$("#q").oninput = renderBands; $("#st").onchange = renderBands; $("#lq").oninput = renderLineup;
+$("#q").oninput = resetPage; ["#st","#gf","#cf","#so"].forEach(s => $(s).onchange = resetPage); $("#lq").oninput = renderLineup;
+$("#more").onclick = () => { shown += PAGE; renderBands(); };
+$("#az").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#az .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); letter = b.dataset.l; resetPage(); };
+fillSelects();
 $("#why").onclick = e => { const b = e.target.closest("button"); if(!b) return; const on = !b.classList.contains("on"); $$("#why .chip").forEach(x=>x.classList.remove("on")); if(on){ b.classList.add("on"); why = b.dataset.w; } else why = null; renderLineup(); };
 $("#memRole").onclick = e => { const b = e.target.closest("button"); if(!b) return; $$("#memRole .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); memRole = b.dataset.r || null; renderMem(); };
 $("#bands").onclick = e => {

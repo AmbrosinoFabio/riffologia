@@ -180,7 +180,7 @@ const LINEUP = [
   { b:"AC/DC", r:"Chitarra ritmica", out:"Malcolm Young", inn:"Stevie Young", y:2014, why:"ritiro", note:"Demenza; Malcolm muore nel 2017. Lo sostituisce il nipote." },
   { b:"Black Sabbath", r:"Voce", out:"Ozzy Osbourne", inn:"Ronnie James Dio", y:1979, why:"licenziamento", note:"Con Dio arriva 'Heaven and Hell' (1980). Ozzy tornerà per le reunion." },
   { b:"Black Sabbath", r:"Voce", out:"Ozzy Osbourne", inn:"— (fine)", y:2025, why:"decesso", note:"Ozzy muore il 22/7/2025 dopo il concerto d'addio a Villa Park." },
-  { b:"Ozzy Osbourne (solista)", r:"Chitarra", out:"Randy Rhoads", inn:"Brad Gillis → Jake E. Lee → Zakk Wylde", y:1982, why:"decesso", note:"Rhoads muore in un incidente aereo durante il tour." },
+  { b:"Ozzy Osbourne", r:"Chitarra", out:"Randy Rhoads", inn:"Brad Gillis → Jake E. Lee → Zakk Wylde", y:1982, why:"decesso", note:"Rhoads muore in un incidente aereo durante il tour." },
   { b:"Iron Maiden", r:"Voce", out:"Paul Di'Anno", inn:"Bruce Dickinson", y:1981, why:"licenziamento", note:"Di'Anno muore nell'ottobre 2024." },
   { b:"Iron Maiden", r:"Voce", out:"Bruce Dickinson", inn:"Blaze Bayley", y:1994, why:"uscita", note:"Bruce torna nel 1999 insieme ad Adrian Smith." },
   { b:"Iron Maiden", r:"Batteria", out:"Nicko McBrain", inn:"Simon Dawson", y:2024, why:"ritiro", note:"Nicko lascia i tour a dicembre 2024 dopo un ictus (2023)." },

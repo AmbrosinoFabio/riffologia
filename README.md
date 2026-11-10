@@ -7,8 +7,8 @@ Enciclopedia interattiva di **rock, hard rock e metal** (aggiornata a novembre 2
 |---|---|---|
 | `index.html` | Home, ultime notizie 2025-26 | marquee, contatori |
 | `storia.html` | Le 9 ere + linea del tempo 1950-2026 | filtri per decennio e tema |
-| `generi.html` | 55 sottogeneri in 6 famiglie | manopole d'ampli (pesantezza/velocità), ricerca, ordinamento, schede dettaglio, genere a caso |
-| `band.html` | Band storiche, emergenti 2026, Italia, cambi di formazione, In memoriam | preferiti, ricerca, filtri per motivo/ruolo |
+| `generi.html` | 56 sottogeneri in 6 famiglie | manopole d'ampli (pesantezza/velocità), ricerca, ordinamento, schede dettaglio, genere a caso |
+| `band.html` | 355 band (300 storiche, 55 emergenti), Italia, 96 cambi di formazione, In memoriam | preferiti, ricerca, filtri per genere/paese/stato/lettera, ordinamento, "carica altre" |
 | `hall-of-fame.html` | Chitarristi, cantanti, batteristi, bassisti | voti (3 per categoria), band dei sogni, copia formazione |
 | `strumenti.html` | Chitarre, bassi, batterie, piatti e pedali | wizard "scegli il tuo strumento", catalogo filtrabile, confronto fino a 3 modelli |
 | `quiz.html` | 24 domande, 10 a partita | punteggio, record personale |
