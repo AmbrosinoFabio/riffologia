@@ -28,8 +28,15 @@ Dati in `js/data.js`. Voti/preferiti salvati in `localStorage` (solo nel browser
 
 ## Effetti interattivi (`css/effects.css`, `js/effects.js`)
 - Cursore a chitarra; su link e pulsanti diventa un plettro.
-- Chitarra laterale = indicatore di scorrimento: il plettro scende sul manico, le corde vibrano mentre scorri, la chitarra si crepa e si smonta; a fine pagina si spacca ("SMASH!") e si ricompone tornando su. Su mobile: barra rossa con chitarrina che ruota.
+- Chitarra laterale (`js/guitar.js`, canvas): 8 modelli storici disegnati a mano, cambiabili cliccando l'etichetta verticale — Stratocaster '54, Flying V '58, Explorer '58, Les Paul Standard '59 (sunburst), SG '61, Red Special '64, "Frankenstrat" '79, Concorde '81. Tasti in posizione reale (formula del temperamento equabile), segnatasti fedeli al modello (punti, trapezi, pinne di squalo), paletta del tipo giusto.
+- Frantumazione: scorrendo le crepe si propagano dal punto d'impatto, poi si staccano le prime schegge; a fine pagina la chitarra esplode con fisica (gravità, rimbalzi, attrito, rotazione 3D simulata), le corde si spezzano e frustano (Verlet), polvere di legno, "SMASH!". Tornando su ogni pezzo torna al suo posto. Su mobile: barra rossa con chitarrina.
 - Tastiera con 6 corde suonabili sotto il titolo di ogni pagina (mouse o tocco); 12 tasti = 12 note diverse.
 - Audio (`js/audio.js`): corde pizzicate Karplus-Strong + catena "ampli" (una sola distorsione sul bus, cassa simulata, limiter). Corde monofoniche, anti-raffica 35 ms, max 12 voci, pennata con 7 ms tra le corde e intensità legata alla velocità del mouse. Spento di default: pulsante 🔇/🔊 nell'header.
 - Scintille e onomatopee al click, schede che si inclinano col mouse, titoli che si accendono come un ampli, comparsa "headbang" delle schede.
 - Rispetta "riduci movimento" del sistema operativo.
+
+## Crediti e ispirazioni (tecniche, codice riscritto da zero, nessuna dipendenza)
+- [aaronbeall/fracture](https://github.com/aaronbeall/fracture) — crepe radiali dal punto d'impatto, schegge fini vicino al colpo e lastre grandi lontano, impulso e rotazione per pezzo.
+- [dgreenheck/three-pinata](https://github.com/dgreenheck/three-pinata) (MIT) — frattura concentrata sull'impatto e "doppio materiale" per le facce interne (qui: legno grezzo come spessore dei frammenti).
+- [Delaunay Triangle Shatter (CodePen)](https://codepen.io/coolfrans/pen/wBGrwNV) — frammenti che tornano al loro posto.
+- verlet-js (integrazione di Verlet) — corde come catene di punti con vincoli di distanza.

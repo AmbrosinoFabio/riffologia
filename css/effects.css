@@ -25,36 +25,20 @@ main.shake{animation:shake .45s}
 .rv.in{opacity:1;transform:none}
 .tile,.opt,.card.link,.hof-row{transition:transform .18s ease-out,background .2s,border-color .15s}
 
-/* ---------- chitarra laterale che si distrugge ---------- */
-.sg{position:fixed;right:10px;top:76px;bottom:14px;width:46px;z-index:40;pointer-events:none;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 8px 12px rgba(0,0,0,.55))}
-.sg-part{transition:transform .3s cubic-bezier(.2,.9,.3,1.3);will-change:transform;position:relative}
-.sg-head{width:46px;height:70px;flex:none}
-.sg-head svg,.sg-body svg{display:block;width:100%;height:100%;overflow:visible}
-.sg-neck{width:14px;flex:1;background:#2b1b10 repeating-linear-gradient(to bottom,transparent 0 34px,#c9c0b0 34px 36px);border-left:1px solid #000;border-right:1px solid #000}
-.sg-neck::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#e8e2d6}
-.str{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(#eee,#9a9a9a);transition:transform .4s cubic-bezier(.2,1.6,.4,1)}
-.str:nth-child(1){left:1.5px;width:1.6px}.str:nth-child(2){left:3.6px;width:1.4px}.str:nth-child(3){left:5.6px;width:1.2px}
-.str:nth-child(4){left:7.6px}.str:nth-child(5){left:9.6px}.str:nth-child(6){left:11.4px;width:.8px}
-.sg-body{width:46px;height:110px;flex:none;margin-top:-1px}
-.sg-body .crack{stroke-dasharray:1;stroke-dashoffset:1}
-.sg-pick{position:absolute;left:50%;width:20px;height:22px;margin:-11px 0 0 -10px;z-index:2;transition:top .12s linear}
-.sg-pick svg{width:100%;height:100%;display:block}
-.sg-pct{position:absolute;right:52px;bottom:4px;font-family:var(--f-mono);font-size:.65rem;color:var(--ink3);letter-spacing:.06em}
-.sg.vibe .str{animation:vib .07s linear infinite}
-@keyframes vib{50%{transform:translateX(.8px)}}
-.sg-shards{position:absolute;left:0;right:0;bottom:70px;height:0}
-.sg-shards i{position:absolute;left:18px;top:0;width:11px;height:11px;background:var(--red);clip-path:polygon(50% 0,100% 100%,0 75%);opacity:0;transition:transform .8s cubic-bezier(.1,.9,.2,1),opacity .5s}
-.sg-shards i:nth-child(odd){background:#3a2414}
-.sg-shards i:nth-child(3n){background:var(--gold);width:7px;height:7px}
-.sg.boom .sg-shards i{opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}
-.sg.boom .str{transform:scaleY(.35) rotate(28deg);transform-origin:top}
-.sg.boom .str:nth-child(even){transform:scaleY(.5) rotate(-35deg);transform-origin:bottom}
+/* ---------- chitarra laterale (canvas, js/guitar.js) ---------- */
+.gtr-canvas{position:fixed;left:0;top:0;z-index:40;pointer-events:none}
+.gtr-label{position:fixed;top:150px;margin-right:var(--sbw,0px);z-index:41;writing-mode:vertical-rl;transform:rotate(180deg);background:rgba(11,11,12,.75);border:1px solid var(--line);color:var(--ink2);font-family:var(--f-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:10px 3px;white-space:nowrap;max-height:calc(100vh - 360px);overflow:hidden;text-overflow:ellipsis}
+.gtr-label span{color:var(--gold)} .gtr-label b{color:var(--red);font-weight:400}
+.gtr-label:hover{color:var(--ink);border-color:var(--red)}
+.gtr-pct{position:fixed;right:calc(100px + var(--sbw,0px));bottom:8px;z-index:41;font-family:var(--f-mono);font-size:.65rem;color:var(--ink3);letter-spacing:.06em;pointer-events:none}
+.spark.dust{width:4px;height:4px;border-radius:1px;background:#8a5a2b;box-shadow:none}
+@media (max-width:999px){.gtr-canvas,.gtr-label,.gtr-pct{display:none}}
 
 /* barra mobile */
 .sg-mini{position:fixed;left:0;top:64px;height:3px;width:calc(var(--p,0) * 100%);background:var(--red);box-shadow:0 0 8px var(--red);z-index:49;pointer-events:none;display:none}
 .sg-mini i{position:absolute;right:-13px;top:-10px;width:24px;height:24px;transform:rotate(calc(var(--p,0) * 720deg));background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath d='M5 5 L20 20' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M5 5 L20 20' stroke='%23d4a24c' stroke-width='2'/%3E%3Cg transform='rotate(-45 24 24)'%3E%3Cpath d='M21 14 C19 13 17 15 18 18 C15 19 14 23 16 26 C17 30 21 32 24 32 C27 32 31 30 32 26 C34 23 33 19 30 18 C31 15 29 13 27 14 Z' fill='%23e1251b' stroke='%23000'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
-@media (max-width:999px){.sg{display:none}.sg-mini{display:block}}
-@media (min-width:1000px) and (max-width:1440px){.wrap{padding-right:calc(var(--pad) + 52px)}}
+@media (max-width:999px){.sg-mini{display:block}}
+@media (min-width:1000px) and (max-width:1500px){.wrap{padding-right:calc(var(--pad) + 66px)}}
 
 /* ---------- tastiera con corde suonabili ---------- */
 .strings{position:relative;height:124px;overflow:hidden;border-bottom:1px solid var(--line);touch-action:pan-y;user-select:none;
