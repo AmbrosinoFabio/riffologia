@@ -4,46 +4,21 @@
   const FINE = matchMedia("(pointer:fine)").matches;
   const NS = "http://www.w3.org/2000/svg";
 
-  /* =================== AUDIO (sintetizzato, nessun file) =================== */
-  let actx = null, master = null, curve = null, sound = store.get("sound", false);
+  /* =================== AUDIO (motore in js/audio.js) =================== */
+  let actx = null, amp = null, sound = store.get("sound", false);
   function audio(){
-    if(!sound) return null;
-    if(!actx){
+    if(!sound || !window.RiffAudio) return null;
+    if(!amp){
       const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return null;
-      actx = new AC(); master = actx.createGain(); master.gain.value = .45;
-      const comp = actx.createDynamicsCompressor(); master.connect(comp); comp.connect(actx.destination);
+      actx = new AC({ latencyHint:"interactive" });
+      amp = RiffAudio.build(actx, actx.destination);
+      // scheda in background: sospende l'audio per non consumare CPU
+      document.addEventListener("visibilitychange", () => { if(document.hidden) actx.suspend(); else if(sound) actx.resume(); });
     }
     if(actx.state === "suspended") actx.resume();
-    return actx;
+    return amp;
   }
-  function getCurve(){
-    if(curve) return curve;
-    const n = 2048, k = 60; curve = new Float32Array(n);
-    for(let i = 0; i < n; i++){ const x = i*2/n - 1; curve[i] = (3+k)*x*20*Math.PI/180 / (Math.PI + k*Math.abs(x)); }
-    return curve;
-  }
-  function note(freq, dur=1.6, vol=.15){
-    const a = audio(); if(!a) return; const t = a.currentTime;
-    const sh = a.createWaveShaper(); sh.curve = getCurve(); sh.oversample = "4x";
-    const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2600;
-    const g = a.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t+.008); g.gain.exponentialRampToValueAtTime(.0001, t+dur);
-    [0, 8].forEach(c => { const o = a.createOscillator(); o.type = "sawtooth"; o.frequency.value = freq; o.detune.value = c; o.connect(sh); o.start(t); o.stop(t+dur+.05); });
-    sh.connect(lp); lp.connect(g); g.connect(master);
-  }
-  function power(f, dur=1.2){ note(f, dur, .11); note(f*1.4983, dur, .09); note(f*2, dur, .05); }
-  function crash(){
-    const a = audio(); if(!a) return; const t = a.currentTime;
-    const len = a.sampleRate*1.4, buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
-    for(let i = 0; i < len; i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 3);
-    const src = a.createBufferSource(); src.buffer = buf;
-    const hp = a.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 800;
-    const g = a.createGain(); g.gain.value = .5; src.connect(hp); hp.connect(g); g.connect(master); src.start(t);
-    const o = a.createOscillator(), og = a.createGain(); o.type = "sine";
-    o.frequency.setValueAtTime(110, t); o.frequency.exponentialRampToValueAtTime(35, t+.5);
-    og.gain.setValueAtTime(.6, t); og.gain.exponentialRampToValueAtTime(.0001, t+.7);
-    o.connect(og); og.connect(master); o.start(t); o.stop(t+.8);
-    power(82.41, 2.4);
-  }
+  const crash = () => audio()?.crash();
 
   /* pulsante audio nell'header */
   const sb = document.createElement("button");
@@ -54,12 +29,14 @@
     sb.setAttribute("aria-pressed", sound); sb.setAttribute("aria-label", sound ? "Disattiva audio" : "Attiva audio");
     sb.title = sound ? "Audio attivo" : "Attiva l'audio: corde e distorsione";
   }
-  sb.onclick = () => { sound = !sound; store.set("sound", sound); setSB(); if(sound) power(110, .9); };
+  sb.onclick = () => {
+    sound = !sound; store.set("sound", sound); setSB();
+    if(sound) audio()?.power(1, 0, { vel:.85 }); else if(actx) actx.suspend();
+  };
   setSB();
 
   /* =================== SCINTILLE + ONOMATOPEE AL CLICK =================== */
   const WORDS = ["RIFF!","DJENT","CHUG!","BRUTAL!","🤘","SHRED!","HEADBANG","BLAST!"];
-  const CHUGS = [82.41, 98, 110, 123.47];
   document.addEventListener("pointerdown", e => {
     if(e.target.closest(".strings")) return;
     if(!RM){
@@ -82,7 +59,7 @@
                   {duration:900, easing:"ease-out"}).onfinish = () => w.remove();
       }
     }
-    if(e.target.closest(".btn,.chip,.opt,.tabs button,.vote button,.quiz-ans button,.cmp-btn")) power(CHUGS[Math.random()*CHUGS.length|0], .3);
+    if(e.target.closest(".btn,.chip,.opt,.tabs button,.vote button,.quiz-ans button,.cmp-btn")) audio()?.chug();
   });
 
   /* =================== TILT DELLE SCHEDE =================== */
@@ -186,7 +163,7 @@
     const svg = document.createElementNS(NS, "svg");
     svg.innerHTML = `<defs><linearGradient id="strGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f4efe6"/><stop offset="1" stop-color="#8e8a82"/></linearGradient></defs>`;
     box.appendChild(svg);
-    const H = 124, NAMES = ["E","A","D","G","B","e"], FREQ = [82.41,110,146.83,196,246.94,329.63];
+    const H = 124, NAMES = ["E","A","D","G","B","e"];
     const S = NAMES.map((n, i) => {
       const y = 20 + i*17, el = document.createElementNS(NS, "path");
       el.setAttribute("stroke-width", (3.2 - i*.45).toFixed(2)); svg.appendChild(el);
@@ -201,17 +178,26 @@
       S.forEach(s => { s.v += -.32*s.d; s.v *= .93; s.d += s.v; if(Math.abs(s.d) > .05 || Math.abs(s.v) > .05) any = true; else { s.d = 0; s.v = 0; } });
       draw(); if(any) requestAnimationFrame(loop); else running = false;
     }
-    function pluck(i, x, dir){
-      const s = S[i]; s.cx = x; s.d = dir * (RM ? 3 : 9); s.v = 0;
+    /* vel = intensità (dalla velocità del puntatore), when = ritardo per la pennata */
+    function pluck(i, x, dir, vel = .75, when = 0){
+      const s = S[i]; s.cx = x; s.d = dir * (RM ? 3 : 4 + vel*7); s.v = 0;
       const fret = Math.min(11, Math.max(0, Math.floor(x / W * 12)));
-      note(FREQ[i] * Math.pow(2, fret/12), 1.8, .13);
+      audio()?.pluck(i, fret, { vel, when });
       s.el.classList.add("hit"); clearTimeout(s.t); s.t = setTimeout(() => s.el.classList.remove("hit"), 280);
       if(!running){ running = true; requestAnimationFrame(loop); }
     }
-    const pos = e => { const r = box.getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top }; };
+    const pos = e => { const r = box.getBoundingClientRect(); return { x:e.clientX - r.left, y:e.clientY - r.top, t:e.timeStamp }; };
     box.addEventListener("pointermove", e => {
       const c = pos(e);
-      if(prev) S.forEach((s, i) => { if((prev.y - s.y) * (c.y - s.y) < 0) pluck(i, c.x, c.y > s.y ? 1 : -1); });
+      if(prev){
+        // corde attraversate in questo movimento, nell'ordine in cui il plettro le incontra
+        const dir = c.y > prev.y ? 1 : -1;
+        const hit = S.map((s, i) => i).filter(i => (prev.y - S[i].y) * (c.y - S[i].y) < 0);
+        if(dir < 0) hit.reverse();
+        const speed = Math.abs(c.y - prev.y) / Math.max(4, c.t - prev.t);      // px/ms
+        const vel = Math.min(1, .45 + speed * .35);
+        hit.forEach((i, k) => pluck(i, c.x, dir, vel, k * .007));           // 7 ms tra una corda e l'altra
+      }
       prev = c;
     });
     box.addEventListener("pointerleave", () => prev = null);
