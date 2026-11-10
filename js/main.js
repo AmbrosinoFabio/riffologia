@@ -20,8 +20,8 @@ function toast(msg){
 function reveal(root=document){
   const els = $$(".rv:not(.in)", root);
   if(!("IntersectionObserver" in window)){ els.forEach(e=>e.classList.add("in")); return; }
-  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {threshold:.08});
-  els.forEach(e => io.observe(e));
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ const t = e.target; t.classList.add("in"); io.unobserve(t); setTimeout(() => t.style.transitionDelay = "", 1200); } }), {threshold:.08});
+  els.forEach((e, i) => { e.style.transitionDelay = (i % 6) * 60 + "ms"; io.observe(e); });
 }
 
 (function layout(){

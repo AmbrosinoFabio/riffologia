@@ -25,3 +25,11 @@ Sito statico, nessuna build: apri `index.html` nel browser, oppure
 npx serve .
 ```
 Dati in `js/data.js`. Voti/preferiti salvati in `localStorage` (solo nel browser dell'utente).
+
+## Effetti interattivi (`css/effects.css`, `js/effects.js`)
+- Cursore a chitarra; su link e pulsanti diventa un plettro.
+- Chitarra laterale = indicatore di scorrimento: il plettro scende sul manico, le corde vibrano mentre scorri, la chitarra si crepa e si smonta; a fine pagina si spacca ("SMASH!") e si ricompone tornando su. Su mobile: barra rossa con chitarrina che ruota.
+- Tastiera con 6 corde suonabili sotto il titolo di ogni pagina (mouse o tocco); 12 tasti = 12 note diverse.
+- Audio sintetizzato con distorsione (Web Audio, nessun file), spento di default: pulsante 🔇/🔊 nell'header.
+- Scintille e onomatopee al click, schede che si inclinano col mouse, titoli che si accendono come un ampli, comparsa "headbang" delle schede.
+- Rispetta "riduci movimento" del sistema operativo.

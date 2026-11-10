@@ -1,0 +1,73 @@
+/* ============ RIFFOLOGIA — effetti in movimento ============ */
+
+/* ---------- cursore chitarra / plettro ---------- */
+@media (pointer:fine){
+  html,body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 36 36'%3E%3Cpath d='M1 1 L8 2.5 L6 4 L4 6 L2.5 8Z' fill='%23d4a24c' stroke='%23000' stroke-width='1'/%3E%3Cpath d='M5 5 L20 20' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M5 5 L20 20' stroke='%237a4a22' stroke-width='2.2'/%3E%3Cg transform='rotate(-45 24 24)'%3E%3Cpath d='M21 14 C19 13 17 15 18 18 C15 19 14 23 16 26 C17 30 21 32 24 32 C27 32 31 30 32 26 C34 23 33 19 30 18 C31 15 29 13 27 14 Z' fill='%23e1251b' stroke='%23000' stroke-width='1.2'/%3E%3Crect x='22' y='20' width='4' height='2' fill='%23000'/%3E%3Crect x='21.5' y='25' width='5' height='1.5' fill='%23000'/%3E%3C/g%3E%3C/svg%3E") 2 2, auto}
+  a,button,select,summary,label,[role=button],.chip,.opt,input[type=range],.card.link,.strings{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='26' viewBox='0 0 24 26'%3E%3Cpath d='M12 1 C6 8 2 14 3 19 C4 23 8 25 12 25 C16 25 20 23 21 19 C22 14 18 8 12 1Z' fill='%23e1251b' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M9 18 L12 11 L15 18' fill='none' stroke='%23fff' stroke-width='1.6'/%3E%3C/svg%3E") 12 1, pointer}
+  input[type=search],input[type=text]{cursor:text}
+}
+
+/* ---------- scintille e onomatopee ---------- */
+.spark{position:fixed;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:200;background:var(--gold);box-shadow:0 0 8px 2px var(--red)}
+.spark:nth-child(3n){background:#fff}
+.boomword{position:fixed;pointer-events:none;z-index:200;font-family:var(--f-display);font-size:1.6rem;color:var(--red);-webkit-text-stroke:1px #000;text-transform:uppercase;white-space:nowrap}
+.smash{position:fixed;left:50%;top:45%;z-index:210;pointer-events:none;font-family:var(--f-display);font-size:clamp(4rem,14vw,11rem);color:var(--red);-webkit-text-stroke:3px #000;text-shadow:6px 6px 0 #000;transform:translate(-50%,-50%) rotate(-8deg);animation:stamp 1.3s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stamp{0%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(3)}15%{opacity:1;transform:translate(-50%,-50%) rotate(-8deg) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) rotate(-8deg) scale(1.1)}}
+main.shake{animation:shake .45s}
+@keyframes shake{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(4px,-2px)}30%,50%,70%{transform:translate(-7px,3px) rotate(-.4deg)}40%,60%{transform:translate(7px,-3px) rotate(.4deg)}}
+
+/* ---------- titoli che si accendono come un ampli ---------- */
+.h1,.h-mega{animation:poweron 1.2s steps(1) both}
+@keyframes poweron{0%{opacity:0}8%{opacity:1}12%{opacity:.15}16%{opacity:1}26%{opacity:.35}30%{opacity:1;text-shadow:0 0 30px rgba(225,37,27,.6)}100%{opacity:1;text-shadow:none}}
+
+/* ---------- reveal "headbang" ---------- */
+.rv{opacity:0;transform:translateY(46px) rotate(-1.5deg) scale(.97);transition:opacity .5s,transform .75s cubic-bezier(.2,1.5,.4,1),background .2s}
+.rv.in{opacity:1;transform:none}
+.tile,.opt,.card.link,.hof-row{transition:transform .18s ease-out,background .2s,border-color .15s}
+
+/* ---------- chitarra laterale che si distrugge ---------- */
+.sg{position:fixed;right:10px;top:76px;bottom:14px;width:46px;z-index:40;pointer-events:none;display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 8px 12px rgba(0,0,0,.55))}
+.sg-part{transition:transform .3s cubic-bezier(.2,.9,.3,1.3);will-change:transform;position:relative}
+.sg-head{width:46px;height:70px;flex:none}
+.sg-head svg,.sg-body svg{display:block;width:100%;height:100%;overflow:visible}
+.sg-neck{width:14px;flex:1;background:#2b1b10 repeating-linear-gradient(to bottom,transparent 0 34px,#c9c0b0 34px 36px);border-left:1px solid #000;border-right:1px solid #000}
+.sg-neck::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:#e8e2d6}
+.str{position:absolute;top:0;bottom:0;width:1px;background:linear-gradient(#eee,#9a9a9a);transition:transform .4s cubic-bezier(.2,1.6,.4,1)}
+.str:nth-child(1){left:1.5px;width:1.6px}.str:nth-child(2){left:3.6px;width:1.4px}.str:nth-child(3){left:5.6px;width:1.2px}
+.str:nth-child(4){left:7.6px}.str:nth-child(5){left:9.6px}.str:nth-child(6){left:11.4px;width:.8px}
+.sg-body{width:46px;height:110px;flex:none;margin-top:-1px}
+.sg-body .crack{stroke-dasharray:1;stroke-dashoffset:1}
+.sg-pick{position:absolute;left:50%;width:20px;height:22px;margin:-11px 0 0 -10px;z-index:2;transition:top .12s linear}
+.sg-pick svg{width:100%;height:100%;display:block}
+.sg-pct{position:absolute;right:52px;bottom:4px;font-family:var(--f-mono);font-size:.65rem;color:var(--ink3);letter-spacing:.06em}
+.sg.vibe .str{animation:vib .07s linear infinite}
+@keyframes vib{50%{transform:translateX(.8px)}}
+.sg-shards{position:absolute;left:0;right:0;bottom:70px;height:0}
+.sg-shards i{position:absolute;left:18px;top:0;width:11px;height:11px;background:var(--red);clip-path:polygon(50% 0,100% 100%,0 75%);opacity:0;transition:transform .8s cubic-bezier(.1,.9,.2,1),opacity .5s}
+.sg-shards i:nth-child(odd){background:#3a2414}
+.sg-shards i:nth-child(3n){background:var(--gold);width:7px;height:7px}
+.sg.boom .sg-shards i{opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}
+.sg.boom .str{transform:scaleY(.35) rotate(28deg);transform-origin:top}
+.sg.boom .str:nth-child(even){transform:scaleY(.5) rotate(-35deg);transform-origin:bottom}
+
+/* barra mobile */
+.sg-mini{position:fixed;left:0;top:64px;height:3px;width:calc(var(--p,0) * 100%);background:var(--red);box-shadow:0 0 8px var(--red);z-index:49;pointer-events:none;display:none}
+.sg-mini i{position:absolute;right:-13px;top:-10px;width:24px;height:24px;transform:rotate(calc(var(--p,0) * 720deg));background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath d='M5 5 L20 20' stroke='%23000' stroke-width='4'/%3E%3Cpath d='M5 5 L20 20' stroke='%23d4a24c' stroke-width='2'/%3E%3Cg transform='rotate(-45 24 24)'%3E%3Cpath d='M21 14 C19 13 17 15 18 18 C15 19 14 23 16 26 C17 30 21 32 24 32 C27 32 31 30 32 26 C34 23 33 19 30 18 C31 15 29 13 27 14 Z' fill='%23e1251b' stroke='%23000'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
+@media (max-width:999px){.sg{display:none}.sg-mini{display:block}}
+@media (min-width:1000px) and (max-width:1440px){.wrap{padding-right:calc(var(--pad) + 52px)}}
+
+/* ---------- tastiera con corde suonabili ---------- */
+.strings{position:relative;height:124px;overflow:hidden;border-bottom:1px solid var(--line);touch-action:pan-y;user-select:none;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 calc(100%/12 - 3px),#b9b1a2 calc(100%/12 - 3px) calc(100%/12)),
+    linear-gradient(180deg,#1c120b,#2a1a0f 50%,#1c120b)}
+.strings .dots{position:absolute;inset:0;pointer-events:none}
+.strings .dots i{position:absolute;top:50%;width:12px;height:12px;margin:-6px;border-radius:50%;background:#e8e2d6;opacity:.85}
+.strings .dots i.dbl{top:30%}.strings .dots i.dbl2{top:70%}
+.strings svg{position:absolute;inset:0;display:block}
+.strings path{fill:none;stroke:#e6e0d4;stroke-linecap:round;transition:stroke .3s}
+.strings path.hit{stroke:var(--red2);filter:drop-shadow(0 0 4px var(--red))}
+.strings .lbl{position:absolute;left:6px;font-family:var(--f-mono);font-size:.62rem;color:#c9c0b0;transform:translateY(-50%)}
+.strings-hint{position:absolute;right:12px;bottom:6px;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:#c9c0b0;background:rgba(0,0,0,.55);padding:3px 8px}
+@media (max-width:980px){#soundBtn{margin-left:auto}#themeBtn{margin-left:0}}
+#soundBtn.on{border-color:var(--red);color:var(--red)}
