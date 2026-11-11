@@ -40,3 +40,13 @@ Dati in `js/data.js`. Voti/preferiti salvati in `localStorage` (solo nel browser
 - [dgreenheck/three-pinata](https://github.com/dgreenheck/three-pinata) (MIT) — frattura concentrata sull'impatto e "doppio materiale" per le facce interne (qui: legno grezzo come spessore dei frammenti).
 - [Delaunay Triangle Shatter (CodePen)](https://codepen.io/coolfrans/pen/wBGrwNV) — frammenti che tornano al loro posto.
 - verlet-js (integrazione di Verlet) — corde come catene di punti con vincoli di distanza.
+
+## Licenza
+- **Codice** (HTML, CSS, JS): [MIT](LICENSE).
+- **Testi originali**: [CC BY 4.0](LICENSE-CONTENT.md), citando "Riffologia — Fabio Ambrosino".
+- **Font**: Google Fonts, SIL Open Font License 1.1.
+
+## Marchi
+Riffologia è un progetto amatoriale e indipendente, senza scopo di lucro, non affiliato né approvato da alcuna band, etichetta o produttore di strumenti.
+Fender, Stratocaster, Gibson, Les Paul, SG, Flying V, Explorer, Jackson, Concorde e gli altri nomi di band, album e strumenti citati sono marchi dei rispettivi titolari e sono usati solo per identificare i prodotti di cui si parla.
+Le chitarre disegnate sul canvas sono illustrazioni stilizzate *ispirate a* modelli storici, non riproduzioni ufficiali. Il sito non contiene loghi né immagini di terzi.

@@ -45,6 +45,10 @@ function reveal(root=document){
     <div><a class="logo" href="index.html">Riff<span>o</span>logia</a>
       <p class="mono muted" style="margin-top:8px">Enciclopedia interattiva di rock, hard rock e metal · aggiornata a novembre 2026</p></div>
     <p class="mono muted">Voti e preferenze sono salvati solo nel tuo browser.<br>Prezzi indicativi, in euro, a nuovo.</p>
+  </div>
+  <div class="wrap foot-legal"><p class="mono muted" style="font-size:.75rem;margin-top:16px">
+    Progetto amatoriale e indipendente, non affiliato a band, etichette o produttori. Nomi di band, album e strumenti (Fender, Gibson, Jackson…) sono marchi dei rispettivi titolari, citati a scopo descrittivo; le chitarre disegnate sono illustrazioni stilizzate ispirate ai modelli storici.<br>
+    Codice <a href="https://github.com/AmbrosinoFabio/riffologia/blob/main/LICENSE">MIT</a> · Testi <a href="https://creativecommons.org/licenses/by/4.0/deed.it" rel="license">CC BY 4.0</a> · © 2026 Fabio Ambrosino · <a href="https://github.com/AmbrosinoFabio/riffologia">Sorgente su GitHub</a></p>
   </div>`;
   document.body.appendChild(foot);
 
