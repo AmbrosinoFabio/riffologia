@@ -34,10 +34,22 @@ function reveal(root=document){
   head.innerHTML = `<div class="wrap">
     <a class="logo" href="index.html" aria-label="Riffologia, home">Riff<span>o</span>logia</a>
     <nav class="nav" id="nav">${PAGES.map(([h,l]) => `<a href="${h}" class="${h===here?"active":""}">${l}</a>`).join("")}</nav>
+    <div class="lang" id="lang" data-noi18n>
+      <button class="icon-btn lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false" aria-controls="langMenu" title="Lingua · Language">${(window.I18N?.lang || "it").toUpperCase()}</button>
+      <div class="lang-menu" id="langMenu" role="menu" aria-label="Lingua · Language">${Object.entries(window.I18N?.LANGS || {it:"Italiano"}).map(([c,n]) =>
+        `<button role="menuitemradio" aria-checked="${c === (window.I18N?.lang || "it")}" lang="${c}" data-lang="${c}"><span class="mono">${c.toUpperCase()}</span> ${n}</button>`).join("")}</div>
+    </div>
     <button class="icon-btn" id="themeBtn" title="Tema chiaro/scuro" aria-label="Cambia tema">◐</button>
     <button class="icon-btn burger" id="burger" aria-label="Menu" aria-controls="nav" aria-expanded="false">☰</button>
   </div>`;
   document.body.prepend(head);
+
+  const langBox = $("#lang"), langBtn = $("#langBtn");
+  const closeLang = () => { langBox.classList.remove("open"); langBtn.setAttribute("aria-expanded", "false"); };
+  langBtn.onclick = e => { e.stopPropagation(); const open = langBox.classList.toggle("open"); langBtn.setAttribute("aria-expanded", open); if(open) $("#langMenu [aria-checked=true]")?.focus(); };
+  $("#langMenu").onclick = e => { const b = e.target.closest("[data-lang]"); if(b && window.I18N) I18N.set(b.dataset.lang); };
+  document.addEventListener("click", e => { if(!langBox.contains(e.target)) closeLang(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape" && langBox.classList.contains("open")){ closeLang(); langBtn.focus(); } });
 
   const foot = document.createElement("footer");
   foot.className = "site-foot";

@@ -38,6 +38,7 @@
     <p class="mono muted mt" id="dreamName"></p>
   </div></section>
 </main>
+<script src="js/i18n.js"></script>
 <script src="js/data.js"></script>
 <script src="js/bands-extra.js"></script>
 <script src="js/main.js"></script>
@@ -95,8 +96,8 @@ function renderDream(){
 $("#dream").onchange = e => { const s = e.target.closest("select"); if(!s) return; dream[s.dataset.c] = s.value; store.set("dream", dream); renderDream(); };
 $("#randBand").onclick = () => { Object.keys(CATS).forEach(c => dream[c] = HOF[c][Math.floor(Math.random()*HOF[c].length)].n); store.set("dream", dream); renderDream(); };
 $("#share").onclick = async () => {
-  const txt = "La mia band dei sogni (Riffologia): " + Object.entries(CATS).map(([c,r]) => `${r}: ${dream[c]||"?"}`).join(" · ");
-  try{ await navigator.clipboard.writeText(txt); toast("Formazione copiata!"); }catch(e){ prompt("Copia la formazione:", txt); }
+  const txt = I18N.t("La mia band dei sogni (Riffologia):") + " " + Object.entries(CATS).map(([c,r]) => `${I18N.t(r)}: ${dream[c]||"?"}`).join(" · ");
+  try{ await navigator.clipboard.writeText(txt); toast("Formazione copiata!"); }catch(e){ prompt(I18N.t("Copia la formazione:"), txt); }
 };
 render(); renderDream();
 </script>

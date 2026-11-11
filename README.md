@@ -1,52 +1,64 @@
 # Riffologia 🤘
 
-Enciclopedia interattiva di **rock, hard rock e metal** (aggiornata a novembre 2026).
+An interactive encyclopedia of **rock, hard rock and metal** (updated November 2026).
 
-## Pagine
-| Pagina | Contenuto | Interattività |
+**Live site:** https://ambrosinofabio.github.io/riffologia/
+
+The site is available in **Italian, English, German, French and Spanish**: use the language menu in the header (the button showing `IT`, `EN`, …). On a first visit the language follows the browser setting.
+
+## Pages
+| Page | Content | Interactivity |
 |---|---|---|
-| `index.html` | Home, ultime notizie 2025-26 | marquee, contatori |
-| `storia.html` | Le 9 ere + linea del tempo 1950-2026 | filtri per decennio e tema |
-| `generi.html` | 56 sottogeneri in 6 famiglie | manopole d'ampli (pesantezza/velocità), ricerca, ordinamento, schede dettaglio, genere a caso |
-| `band.html` | 355 band (300 storiche, 55 emergenti), Italia, 96 cambi di formazione, In memoriam | preferiti, ricerca, filtri per genere/paese/stato/lettera, ordinamento, "carica altre" |
-| `hall-of-fame.html` | Chitarristi, cantanti, batteristi, bassisti | voti (3 per categoria), band dei sogni, copia formazione |
-| `strumenti.html` | Chitarre, bassi, batterie, piatti e pedali | wizard "scegli il tuo strumento", catalogo filtrabile, confronto fino a 3 modelli |
-| `quiz.html` | 24 domande, 10 a partita | punteggio, record personale |
+| `index.html` | Home, latest news 2025–26 | marquee, counters |
+| `storia.html` | History: the 9 eras + a 1950–2026 timeline | filters by decade and theme |
+| `generi.html` | 56 subgenres in 6 families | amp knobs (heaviness/speed), search, sorting, detail cards, random genre |
+| `band.html` | 355 bands (300 legends, 55 rising acts), Italian scene, 96 line-up changes, In memoriam | favourites, search, filters by genre/country/status/letter, sorting, "load more" |
+| `hall-of-fame.html` | Guitarists, singers, drummers, bassists | votes (3 per category), dream band, copy line-up |
+| `strumenti.html` | Guitars, basses, drums, cymbals and pedals | "choose your instrument" wizard, filterable catalogue, compare up to 3 models |
+| `quiz.html` | 24 questions, 10 per game | score, personal best |
 
-L'analisi completa (storia, generi, lutti/sostituzioni, strumenti, scelte di design) è in [ANALISI.md](ANALISI.md).
+The full background analysis (history, genres, deaths and replacements, instruments, design choices) is in [ANALISI.md](ANALISI.md) (Italian).
 
 ## Design
-- Font: **Anton** (titoli da manifesto), **UnifrakturMaguntia** (accenti blackletter), **Archivo** (testo), **JetBrains Mono** (dati).
-- Palette: nero carbone, "bone", rosso amplificatore, oro per la Hall of Fame. Tema chiaro opzionale.
+- Fonts: **Anton** (poster-style headings), **UnifrakturMaguntia** (blackletter accents), **Archivo** (body text), **JetBrains Mono** (data).
+- Palette: charcoal black, "bone", amp red, and gold for the Hall of Fame. Optional light theme.
 
-## Avvio
-Sito statico, nessuna build: apri `index.html` nel browser, oppure
+## Running it
+A static site with no build step: open `index.html` in a browser, or run
 ```bash
 npx serve .
 ```
-Dati in `js/data.js`. Voti/preferiti salvati in `localStorage` (solo nel browser dell'utente).
+Data lives in `js/data.js` and `js/bands-extra.js`. Votes, favourites, theme and language are saved in `localStorage` (only in the visitor's browser).
 
-## Effetti interattivi (`css/effects.css`, `js/effects.js`)
-- Cursore a chitarra; su link e pulsanti diventa un plettro.
-- Chitarra laterale (`js/guitar.js`, canvas): 8 modelli storici disegnati a mano, cambiabili cliccando l'etichetta verticale — Stratocaster '54, Flying V '58, Explorer '58, Les Paul Standard '59 (sunburst), SG '61, Red Special '64, "Frankenstrat" '79, Concorde '81. Tasti in posizione reale (formula del temperamento equabile), segnatasti fedeli al modello (punti, trapezi, pinne di squalo), paletta del tipo giusto.
-- Frantumazione: scorrendo le crepe si propagano dal punto d'impatto, poi si staccano le prime schegge; a fine pagina la chitarra esplode con fisica (gravità, rimbalzi, attrito, rotazione 3D simulata), le corde si spezzano e frustano (Verlet), polvere di legno, "SMASH!". Tornando su ogni pezzo torna al suo posto. Su mobile: barra rossa con chitarrina.
-- Tastiera con 6 corde suonabili sotto il titolo di ogni pagina (mouse o tocco); 12 tasti = 12 note diverse.
-- Audio (`js/audio.js`): corde pizzicate Karplus-Strong + catena "ampli" (una sola distorsione sul bus, cassa simulata, limiter). Corde monofoniche, anti-raffica 35 ms, max 12 voci, pennata con 7 ms tra le corde e intensità legata alla velocità del mouse. Spento di default: pulsante 🔇/🔊 nell'header.
-- Scintille e onomatopee al click, schede che si inclinano col mouse, titoli che si accendono come un ampli, comparsa "headbang" delle schede.
-- Rispetta "riduci movimento" del sistema operativo.
+## Translations (`js/i18n.js`, `js/i18n/*.js`)
+- The source content is written in Italian. `js/i18n.js` translates what is shown on the page using one dictionary per language (`js/i18n/en.js`, `de.js`, `fr.js`, `es.js`), mapping each Italian sentence to its translation.
+- Numbers become placeholders, so one entry covers every variant: `Nasce il {0} febbraio {1}` → `Born on {0} February {1}`.
+- Text generated by the page scripts (cards, filters, quiz, wizard, toasts) is translated on the fly with a `MutationObserver`. Only text nodes and a few attributes (`title`, `aria-label`, `placeholder`) are changed, never the elements themselves, so the scripts keep working.
+- The data stays in Italian internally, so votes and favourites saved in one language still work in the others.
+- Band, album, song and instrument names are proper names and are not translated.
+- `i18n.js` must be the first script at the end of `<body>`: it loads the dictionary synchronously and translates the static text before the page scripts run.
 
-## Crediti e ispirazioni (tecniche, codice riscritto da zero, nessuna dipendenza)
-- [aaronbeall/fracture](https://github.com/aaronbeall/fracture) — crepe radiali dal punto d'impatto, schegge fini vicino al colpo e lastre grandi lontano, impulso e rotazione per pezzo.
-- [dgreenheck/three-pinata](https://github.com/dgreenheck/three-pinata) (MIT) — frattura concentrata sull'impatto e "doppio materiale" per le facce interne (qui: legno grezzo come spessore dei frammenti).
-- [Delaunay Triangle Shatter (CodePen)](https://codepen.io/coolfrans/pen/wBGrwNV) — frammenti che tornano al loro posto.
-- verlet-js (integrazione di Verlet) — corde come catene di punti con vincoli di distanza.
+## Interactive effects (`css/effects.css`, `js/effects.js`)
+- Guitar-shaped cursor that turns into a pick over links and buttons.
+- Side guitar (`js/guitar.js`, canvas): 8 hand-drawn historic models, switched by clicking the vertical label: Stratocaster '54, Flying V '58, Explorer '58, Les Paul Standard '59 (sunburst), SG '61, Red Special '64, "Frankenstrat" '79, Concorde '81. Frets at their real positions (equal-temperament formula), inlays true to each model (dots, trapezoids, shark fins) and the right headstock type.
+- Shattering: as you scroll, cracks spread from the impact point and the first splinters come off; at the bottom of the page the guitar explodes with physics (gravity, bounces, friction, simulated 3D rotation), the strings snap and whip (Verlet), wood dust flies, "SMASH!". Scroll back up and every piece returns to its place. On mobile: a red bar with a small guitar.
+- A fretboard with 6 playable strings under every page title (mouse or touch); 12 frets = 12 different notes.
+- Audio (`js/audio.js`): Karplus-Strong plucked strings + an "amp" chain (a single distortion on the bus, simulated cabinet, limiter). Monophonic strings, 35 ms anti-burst, max 12 voices, strums with 7 ms between strings and intensity linked to mouse speed. Off by default: 🔇/🔊 button in the header.
+- Sparks and onomatopoeias on click, cards that tilt with the mouse, headings that light up like an amp, "headbang" card entrances.
+- Respects the operating system's "reduce motion" setting.
 
-## Licenza
-- **Codice** (HTML, CSS, JS): [MIT](LICENSE).
-- **Testi originali**: [CC BY 4.0](LICENSE-CONTENT.md), citando "Riffologia — Fabio Ambrosino".
-- **Font**: Google Fonts, SIL Open Font License 1.1.
+## Credits and inspiration (techniques only; code written from scratch, no dependencies)
+- [aaronbeall/fracture](https://github.com/aaronbeall/fracture): radial cracks from the impact point, fine splinters near the hit and large shards further away, impulse and rotation per piece.
+- [dgreenheck/three-pinata](https://github.com/dgreenheck/three-pinata) (MIT): fracture concentrated around the impact and a "double material" for inner faces (here: raw wood as the fragments' thickness).
+- [Delaunay Triangle Shatter (CodePen)](https://codepen.io/coolfrans/pen/wBGrwNV): fragments flying back into place.
+- verlet-js (Verlet integration): strings as chains of points with distance constraints.
 
-## Marchi
-Riffologia è un progetto amatoriale e indipendente, senza scopo di lucro, non affiliato né approvato da alcuna band, etichetta o produttore di strumenti.
-Fender, Stratocaster, Gibson, Les Paul, SG, Flying V, Explorer, Jackson, Concorde e gli altri nomi di band, album e strumenti citati sono marchi dei rispettivi titolari e sono usati solo per identificare i prodotti di cui si parla.
-Le chitarre disegnate sul canvas sono illustrazioni stilizzate *ispirate a* modelli storici, non riproduzioni ufficiali. Il sito non contiene loghi né immagini di terzi.
+## License
+- **Code** (HTML, CSS, JS): [MIT](LICENSE).
+- **Original text** (including the translations): [CC BY 4.0](LICENSE-CONTENT.md), credited as "Riffologia — Fabio Ambrosino".
+- **Fonts**: Google Fonts, SIL Open Font License 1.1.
+
+## Trademarks
+Riffologia is an independent, non-commercial hobby project. It is not affiliated with or endorsed by any band, record label or instrument maker.
+Fender, Stratocaster, Gibson, Les Paul, SG, Flying V, Explorer, Jackson, Concorde and the other band, album and instrument names mentioned are trademarks of their respective owners and are used only to identify the products being discussed.
+The guitars drawn on the canvas are stylised illustrations *inspired by* historic models, not official reproductions. The site contains no third-party logos or images.
