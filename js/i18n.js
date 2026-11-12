@@ -1,6 +1,7 @@
-/* RIFFOLOGIA — traduzione dell'interfaccia (IT · EN · DE · FR · ES)
+/* RIFFOLOGIA — traduzione dell'interfaccia (EN · IT · DE · FR · ES, altre lingue via Google Translate)
  *
- * Il sito è scritto in italiano. Per le altre lingue questo modulo traduce il testo mostrato
+ * Lingua predefinita: inglese. Scelta: ?lang= nell'URL -> localStorage -> lingua del browser -> inglese.
+ * Il testo sorgente è in italiano. Per le altre lingue questo modulo traduce il testo mostrato
  * nella pagina usando un dizionario "frase italiana -> traduzione" (js/i18n/<lingua>.js).
  * I dati (data.js) restano in italiano, quindi voti, preferiti e filtri continuano a funzionare.
  *
@@ -12,11 +13,37 @@
  *   e i riferimenti che gli script tengono in memoria restano validi.
  */
 (function(){
-  const LANGS = { it:"Italiano", en:"English", de:"Deutsch", fr:"Français", es:"Español" };
-  const KEY = "riff_lang";
+  // Lingue tradotte a mano (dizionari in js/i18n/). L'inglese è la lingua predefinita.
+  const LANGS = { en:"English", it:"Italiano", de:"Deutsch", fr:"Français", es:"Español" };
+  // Altre lingue: la pagina viene mostrata in inglese e poi tradotta da Google Translate.
+  const GT = { pt:"Português", nl:"Nederlands", pl:"Polski", ro:"Română", sv:"Svenska", da:"Dansk", no:"Norsk",
+    fi:"Suomi", cs:"Čeština", hu:"Magyar", el:"Ελληνικά", tr:"Türkçe", ru:"Русский", uk:"Українська",
+    ar:"العربية", he:"עברית", hi:"हिन्दी", id:"Bahasa Indonesia", vi:"Tiếng Việt", th:"ไทย",
+    ja:"日本語", ko:"한국어", "zh-CN":"中文 (简体)", "zh-TW":"中文 (繁體)" };
+  const KEY = "riff_lang", DEFAULT = "en";
+  const valid = l => !!(l && (LANGS[l] || GT[l]));
   const read = () => { try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } };
-  const browser = (navigator.language || "it").slice(0,2).toLowerCase();
-  const lang = LANGS[read()] ? read() : (LANGS[browser] ? browser : "it");
+  const save = l => { try{ localStorage.setItem(KEY, JSON.stringify(l)); }catch(e){} };
+  // lingue del browser che sappiamo mostrare, in ordine di preferenza ("pt-BR" -> "pt", "zh-TW" -> "zh-TW", "nb" -> "no")
+  function fromBrowser(){
+    const out = [];
+    for(const raw of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""])){
+      const l = String(raw).toLowerCase(), base = l.split("-")[0];
+      const c = base === "zh" ? (/tw|hk|mo|hant/.test(l) ? "zh-TW" : "zh-CN") : base === "nb" || base === "nn" ? "no" : base === "iw" ? "he" : base;
+      if(valid(c) && !out.includes(c)) out.push(c);
+    }
+    return out;
+  }
+  // ordine: ?lang= nell'URL (così la lingua segue i link anche senza localStorage) -> scelta salvata -> browser -> inglese
+  const fromUrl = new URLSearchParams(location.search).get("lang");
+  // Google Translate non parte mai da solo (invierebbe a Google l'IP del visitatore): se il browser è in una
+  // lingua senza dizionario si mostra l'inglese e si propone la traduzione con un clic (vedi offerGoogle).
+  // Es. browser ["pt-BR","it"]: si mostra l'italiano e si propone il portoghese via Google.
+  const prefs = fromBrowser(), offer = GT[prefs[0]] ? prefs[0] : null;
+  const choice = valid(fromUrl) ? fromUrl : valid(read()) ? read() : (prefs.find(l => LANGS[l]) || DEFAULT);
+  if(valid(fromUrl) && read() !== fromUrl) save(fromUrl);
+  const gt = GT[choice] ? choice : null;          // lingua affidata a Google Translate
+  const lang = gt ? DEFAULT : choice;             // lingua del dizionario usato
 
   const INLINE = new Set(["A","B","STRONG","EM","I","SPAN","BR","SMALL","CODE","SUP","SUB","ABBR","MARK","U","S","TIME","KBD"]);
   const SKIP = new Set(["SCRIPT","STYLE","SVG","CANVAS","NOSCRIPT","TEXTAREA","svg"]);
@@ -119,10 +146,74 @@
     }).observe(document.body, { childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:ATTRS });
   }
 
+  // --- la lingua segue i link interni: ?lang=xx viene aggiunto all'indirizzo al momento del clic ---
+  const dir = location.pathname.replace(/[^/]*$/, "");
+  function tagLink(e){
+    const a = e.target && e.target.closest ? e.target.closest("a[href]") : null; if(!a) return;
+    let u; try{ u = new URL(a.getAttribute("href"), location.href); }catch(err){ return; }
+    if(u.origin !== location.origin || !u.pathname.startsWith(dir) || !/(\.html|\/)$/.test(u.pathname)) return;
+    if(u.searchParams.get("lang") === choice) return;
+    u.searchParams.set("lang", choice); a.href = u.href;
+  }
+  ["click","auxclick","contextmenu"].forEach(ev => document.addEventListener(ev, tagLink, true));
+
+  // --- Google Translate (solo per le lingue senza dizionario) ---
+  function clearGoogleCookie(){
+    const host = location.hostname, dead = "=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    for(const path of ["/", dir]) for(const dom of ["", "; domain=" + host, "; domain=." + host])
+      document.cookie = "googtrans" + dead + "; path=" + path + dom;
+  }
+  function loadGoogle(){
+    clearGoogleCookie();
+    document.cookie = "googtrans=/" + DEFAULT + "/" + gt + "; path=/";
+    const css = document.createElement("style");
+    css.textContent = "body{top:0!important;position:static!important}body>.skiptranslate,iframe.skiptranslate,.goog-te-banner-frame,#goog-gt-tt,.goog-te-balloon-frame,.goog-tooltip{display:none!important}" +
+      ".goog-text-highlight{background:none!important;box-shadow:none!important}#google_translate_element{display:none}";
+    document.head.appendChild(css);
+    const box = document.createElement("div"); box.id = "google_translate_element"; document.body.appendChild(box);
+    window.__riffGT = () => {
+      try{ new google.translate.TranslateElement({ pageLanguage: DEFAULT, autoDisplay: false }, "google_translate_element"); }catch(e){ return; }
+      // il cookie non sempre basta: se dopo l'avvio la pagina non è tradotta, si sceglie la lingua nel selettore nascosto
+      let tries = 0;
+      const kick = () => {
+        const html = document.documentElement;
+        if(/translated-(ltr|rtl)/.test(html.className)) return;
+        const combo = document.querySelector(".goog-te-combo");
+        if(combo && [...combo.options].some(o => o.value === gt)){
+          combo.value = gt; combo.dispatchEvent(new Event("change"));
+          if(++tries < 3) setTimeout(kick, 1500);
+        } else if(++tries < 40) setTimeout(kick, 250);
+      };
+      setTimeout(kick, 800);
+    };
+    const sc = document.createElement("script");
+    sc.src = "https://translate.google.com/translate_a/element.js?cb=__riffGT"; sc.async = true;
+    document.head.appendChild(sc);
+  }
+  function offerGoogle(){
+    try{ if(localStorage.getItem("riff_gt_offer") === offer) return; }catch(e){}
+    const bar = document.createElement("div");
+    bar.className = "gt-offer notranslate"; bar.setAttribute("translate", "no"); bar.setAttribute("data-noi18n", ""); bar.setAttribute("role", "region");
+    bar.setAttribute("aria-label", "Translation");
+    bar.innerHTML = '<span lang="' + offer + '">🌐 ' + GT[offer] + '?</span> <span class="muted">Translate this page with Google Translate</span>' +
+      '<button class="btn" type="button" data-gt-yes>Translate</button><button class="icon-btn" type="button" data-gt-no aria-label="Close">×</button>';
+    bar.querySelector("[data-gt-yes]").onclick = () => window.I18N.set(offer);
+    bar.querySelector("[data-gt-no]").onclick = () => { try{ localStorage.setItem("riff_gt_offer", offer); }catch(e){} bar.remove(); };
+    document.body.appendChild(bar);
+  }
+  if(gt) document.addEventListener("DOMContentLoaded", loadGoogle);
+  else {
+    if(/googtrans=/.test(document.cookie)) clearGoogleCookie();
+    if(offer && !valid(fromUrl) && !valid(read())) document.addEventListener("DOMContentLoaded", offerGoogle);
+  }
+
   window.I18N = {
-    lang, LANGS,
+    lang, choice, gt, LANGS, GT,
     t: s => (lang === "it" ? s : (t(s) ?? s)),
-    set(l){ if(!LANGS[l]) return; try{ localStorage.setItem(KEY, JSON.stringify(l)); }catch(e){} location.reload(); },
+    set(l){
+      if(!valid(l)) return; save(l); clearGoogleCookie();
+      const u = new URL(location.href); u.searchParams.set("lang", l); location.href = u.href;
+    },
     load(dict, tpl){
       DICT = dict;
       TPL = tpl.map(([it, tr]) => [new RegExp("^" + it.split("{s}").map(x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("(.+?)") + "$"), tr]);
@@ -130,6 +221,6 @@
     }
   };
 
-  document.documentElement.lang = lang;
+  document.documentElement.lang = gt || lang;
   if(lang !== "it") document.write('<script src="js/i18n/' + lang + '.js"><\/script>');
 })();

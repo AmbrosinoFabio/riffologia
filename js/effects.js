@@ -92,7 +92,7 @@
     const S = NAMES.map((n, i) => {
       const y = 20 + i*17, el = document.createElementNS(NS, "path");
       el.setAttribute("stroke-width", (3.2 - i*.45).toFixed(2)); svg.appendChild(el);
-      const l = document.createElement("span"); l.className = "lbl"; l.textContent = n; l.style.top = y + "px"; box.appendChild(l);
+      const l = document.createElement("span"); l.className = "lbl"; l.translate = false; l.textContent = n; l.style.top = y + "px"; box.appendChild(l);
       return { y, d:0, v:0, cx:0, el };
     });
     let W = 0, running = false, prev = null;

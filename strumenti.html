@@ -103,7 +103,7 @@ function renderResult(){
     <div class="wiz-bar"><i style="width:100%"></i></div>
     <div class="wiz-body"><h2 class="wiz-q">${inst==="drums" ? "Il tuo setup ideale" : "I tuoi tre match migliori"}</h2>
     <div class="result">${picks.map((x,i) => `<div class="card"><span class="mono muted">${inst==="drums" ? x.kind : (i===0?"Scelta n.1":"Alternativa")}</span>
-      <div class="match">${x.sc}%</div><h3 class="h3" style="margin:6px 0">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
+      <div class="match">${x.sc}%</div><h3 class="h3" translate="no" style="margin:6px 0">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
       <p class="mono muted mt" style="font-size:.72rem">${esc(x.price)}</p><p class="mono" style="font-size:.72rem;margin-top:6px">Suonata da: ${esc(x.players)}</p></div>`).join("")}</div></div>`;
 }
 $("#wiz").onclick = e => {
@@ -119,7 +119,7 @@ function renderCat(){
   $("#catN").textContent = `${list.length} modelli`;
   $("#cat").innerHTML = list.length ? list.map(x => `<article class="card rv">
     <div class="flex" style="justify-content:space-between"><span class="mono muted">${esc(x.brand)}${x.kind?" · "+x.kind:""}</span><span class="tag gold">${TIER[x.tier]}</span></div>
-    <h3 class="h3" style="margin:10px 0 6px">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
+    <h3 class="h3" translate="no" style="margin:10px 0 6px">${esc(x.m)}</h3><p>${esc(x.desc)}</p>
     <div class="meta">${x.gen.map(g => `<span class="tag">${GEN[g] || g}</span>`).join("")}</div>
     <p class="mono muted" style="font-size:.72rem">${esc(x.price)}</p>
     <button class="cmp-btn mt ${cmp.includes(x.m)?"on":""}" data-c="${esc(x.m)}">${cmp.includes(x.m) ? "✓ In confronto" : "+ Confronta"}</button>
@@ -146,7 +146,7 @@ $("#cmpGo").onclick = () => {
     ? [["Marca","brand"],["Tipo","kind"],["Materiale","wood"],["Prezzo","price"],["Musicisti","players"]]
     : [["Marca","brand"],["Corpo","body"],["Pickup","pick"],["Corde","strings"],["Scala","scale"],["Ponte","bridge"],["Prezzo","price"],["Musicisti","players"]];
   $("#mBody").innerHTML = `<span class="kicker">Confronto</span><h2 class="h2" style="margin:10px 0 24px">Testa a testa</h2>
-    <div class="tbl-wrap"><table><thead><tr><th></th>${xs.map(x => `<th style="font-size:.8rem;color:var(--ink)">${esc(x.m)}</th>`).join("")}</tr></thead><tbody>
+    <div class="tbl-wrap"><table><thead><tr><th></th>${xs.map(x => `<th translate="no" style="font-size:.8rem;color:var(--ink)">${esc(x.m)}</th>`).join("")}</tr></thead><tbody>
     ${rows.filter(([,k]) => xs.some(x => x[k])).map(([l,k]) => `<tr><th>${l}</th>${xs.map(x => `<td>${esc(x[k] ?? "—")}</td>`).join("")}</tr>`).join("")}
     <tr><th>Suono</th>${xs.map(x => `<td>${({warm:"Caldo",bright:"Brillante",aggressive:"Aggressivo",versatile:"Versatile"})[x.sound]}</td>`).join("")}</tr>
     <tr><th>Budget</th>${xs.map(x => `<td class="gold">${TIER[x.tier]}</td>`).join("")}</tr>

@@ -4,7 +4,9 @@ An interactive encyclopedia of **rock, hard rock and metal** (updated November 2
 
 **Live site:** https://ambrosinofabio.github.io/riffologia/
 
-The site is available in **Italian, English, German, French and Spanish**: use the language menu in the header (the button showing `IT`, `EN`, …). On a first visit the language follows the browser setting.
+The site is available in **English, Italian, German, French and Spanish**, with hand-made translations. Any other language (Portuguese, Japanese, Arabic, …) is available through Google Translate. Use the language menu in the header (the button showing `EN`, `IT`, …).
+
+On a first visit the site uses the browser's language if it has a hand-made translation for it, and **English** otherwise. When the browser language is one of the Google Translate ones, the site does not start Google Translate on its own: it shows the page in English and offers a one-click translation, because Google Translate sends the visitor's IP address to Google.
 
 ## Pages
 | Page | Content | Interactivity |
@@ -28,7 +30,7 @@ A static site with no build step: open `index.html` in a browser, or run
 ```bash
 npx serve .
 ```
-Data lives in `js/data.js` and `js/bands-extra.js`. Votes, favourites, theme and language are saved in `localStorage` (only in the visitor's browser).
+Data lives in `js/data.js` and `js/bands-extra.js`. Votes, favourites, theme and language are saved in `localStorage` (only in the visitor's browser). Google Translate is loaded only when the visitor chooses a language that has no hand-made translation.
 
 ## Translations (`js/i18n.js`, `js/i18n/*.js`)
 - The source content is written in Italian. `js/i18n.js` translates what is shown on the page using one dictionary per language (`js/i18n/en.js`, `de.js`, `fr.js`, `es.js`), mapping each Italian sentence to its translation.
@@ -37,6 +39,8 @@ Data lives in `js/data.js` and `js/bands-extra.js`. Votes, favourites, theme and
 - The data stays in Italian internally, so votes and favourites saved in one language still work in the others.
 - Band, album, song and instrument names are proper names and are not translated.
 - `i18n.js` must be the first script at the end of `<body>`: it loads the dictionary synchronously and translates the static text before the page scripts run.
+- Language choice, in order: `?lang=xx` in the URL, then the saved choice (`localStorage`), then the browser language, then English. When a visitor clicks an internal link, `?lang=xx` is added to the address, so the language carries across pages even when `localStorage` is blocked (private browsing, strict privacy settings).
+- Other languages (`GT` list in `i18n.js`): the page is first translated into English with the dictionary, then the Google Translate website widget translates it into the chosen language. Proper names are marked `translate="no"` so Google does not translate them ("Rush", "Children of Bodom", album and guitar model names). The widget is loaded only after the visitor chooses that language (from the menu or from the one-click offer), and the footer says so.
 
 ## Interactive effects (`css/effects.css`, `js/effects.js`)
 - Guitar-shaped cursor that turns into a pick over links and buttons.

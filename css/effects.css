@@ -53,5 +53,5 @@ main.shake{animation:shake .45s}
 .strings path.hit{stroke:var(--red2);filter:drop-shadow(0 0 4px var(--red))}
 .strings .lbl{position:absolute;left:6px;font-family:var(--f-mono);font-size:.62rem;color:#c9c0b0;transform:translateY(-50%)}
 .strings-hint{position:absolute;right:12px;bottom:6px;font-family:var(--f-mono);font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:#c9c0b0;background:rgba(0,0,0,.55);padding:3px 8px}
-@media (max-width:980px){#soundBtn{margin-left:auto}#themeBtn{margin-left:0}}
+@media (max-width:1200px){.lang{margin-left:auto}#soundBtn,#themeBtn{margin-left:0}}
 #soundBtn.on{border-color:var(--red);color:var(--red)}

@@ -76,7 +76,7 @@ function open(id){
       <div class="card"><span class="mono muted">Origine</span><h3 class="h3">${esc(x.origin)}</h3></div>
       <div class="card"><span class="mono muted">Band chiave</span><h3 class="h3">${x.bands.map(esc).join(" · ")}</h3></div>
     </div>
-    ${related.length ? `<h3 class="h3 mt">Nel nostro archivio</h3><div class="chips mt">${related.map(b => `<a class="chip" href="band.html#${encodeURIComponent(b.n)}">${esc(b.n)}</a>`).join("")}</div>` : ""}
+    ${related.length ? `<h3 class="h3 mt">Nel nostro archivio</h3><div class="chips mt">${related.map(b => `<a class="chip" translate="no" href="band.html#${encodeURIComponent(b.n)}">${esc(b.n)}</a>`).join("")}</div>` : ""}
     <h3 class="h3 mt">Generi fratelli</h3><div class="chips mt">${sib.map(g => `<button class="chip" data-go="${g.id}">${esc(g.name)}</button>`).join("")}</div>`;
   $("#modal").classList.add("show"); $("#mClose").focus();
 }

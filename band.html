@@ -110,12 +110,12 @@ function renderBands(){
     return `<article class="card rv" id="${encodeURIComponent(b.n)}">
       <div class="flex" style="justify-content:space-between"><span class="mono muted">${esc(b.c)} · ${esc(b.y)}</span>
       <button class="icon-btn" data-fav="${esc(b.n)}" aria-pressed="${fav}" title="Aggiungi ai preferiti" style="width:34px;height:34px;${fav?"color:var(--red);border-color:var(--red)":""}">${fav?"♥":"♡"}</button></div>
-      <h3 class="h3 glitch" style="margin:10px 0 6px;font-size:1.9rem">${esc(b.n)}</h3>
+      <h3 class="h3 glitch" translate="no" style="margin:10px 0 6px;font-size:1.9rem">${esc(b.n)}</h3>
       <div class="meta"><span class="tag ${b.type==="emergente"?"gold":""}">${esc(genreName(b.g))}</span><span class="tag ${b.st==="lutto"||b.st==="sciolti"?"red":""}">${esc(b.st)}</span></div>
-      <p><b style="color:var(--ink)">Album chiave:</b> ${esc(b.alb)}</p>
+      <p><b style="color:var(--ink)">Album chiave:</b> <span translate="no">${esc(b.alb)}</span></p>
       <p style="margin-top:6px">${esc(b.note)}</p>
       ${ch.length ? `<details class="mt"><summary class="mono" style="cursor:pointer;color:var(--red)">${ch.length} ${ch.length===1?"cambio":"cambi"} di formazione</summary>
-        <ul style="list-style:none;margin-top:10px">${ch.map(l => `<li style="padding:6px 0;border-top:1px solid var(--line);font-size:.9rem"><span class="mono muted">${l.y} · ${esc(l.r)}</span><br>${esc(l.out)} <span class="red">→</span> ${esc(l.inn)}</li>`).join("")}</ul></details>` : ""}
+        <ul style="list-style:none;margin-top:10px">${ch.map(l => `<li style="padding:6px 0;border-top:1px solid var(--line);font-size:.9rem"><span class="mono muted">${l.y} · ${esc(l.r)}</span><br><span translate="no">${esc(l.out)}</span> <span class="red">→</span> <span translate="no">${esc(l.inn)}</span></li>`).join("")}</ul></details>` : ""}
     </article>`;
   }).join("") : `<p class="empty">${tab==="fav" ? "Nessun preferito: tocca ♡ su una band per aggiungerla." : "Nessuna band trovata."}</p>`;
   reveal($("#bands"));
@@ -123,13 +123,13 @@ function renderBands(){
 function renderLineup(){
   const q = $("#lq").value.trim().toLowerCase();
   const list = LINEUP.filter(l => (!why || l.why === why) && (!q || [l.b,l.out,l.inn,l.r].join(" ").toLowerCase().includes(q))).sort((a,b) => b.y - a.y);
-  $("#lt").innerHTML = list.map(l => `<tr><td class="mono">${l.y}</td><td><b>${esc(l.b)}</b></td><td>${esc(l.r)}</td>
-    <td style="${l.why==="decesso"?"color:var(--red)":""}">${esc(l.out)}${l.why==="decesso"?" †":""}</td><td class="arrow">→</td><td>${esc(l.inn)}</td>
+  $("#lt").innerHTML = list.map(l => `<tr><td class="mono">${l.y}</td><td translate="no"><b>${esc(l.b)}</b></td><td>${esc(l.r)}</td>
+    <td translate="no" style="${l.why==="decesso"?"color:var(--red)":""}">${esc(l.out)}${l.why==="decesso"?" †":""}</td><td class="arrow">→</td><td translate="no">${esc(l.inn)}</td>
     <td class="muted"><span class="tag ${l.why==="decesso"?"red":""}">${WHY[l.why]}</span> ${esc(l.note)}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">Nessun risultato.</td></tr>`;
 }
 function renderMem(){
   const list = MEMORIAM.filter(m => !memRole || m[2].includes(memRole)).sort((a,b) => b[1]-a[1]);
-  $("#mem").innerHTML = list.map(([n,y,r]) => `<div class="${y>=2025?"recent":""}"><span class="cross">† ${y}</span><b>${esc(n)}</b><span class="mono muted">${esc(r)}</span></div>`).join("");
+  $("#mem").innerHTML = list.map(([n,y,r]) => `<div class="${y>=2025?"recent":""}"><span class="cross">† ${y}</span><b translate="no">${esc(n)}</b><span class="mono muted">${esc(r)}</span></div>`).join("");
 }
 function resetPage(){ shown = PAGE; renderBands(); }
 function show(t){

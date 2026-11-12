@@ -61,8 +61,8 @@ function render(){
   const list = HOF[cat].filter(p => !flt || (flt==="rip" ? p.d : !p.d)).map(p => ({...p, sc:score(p,cat)})).sort((a,b) => b.sc - a.sc);
   $("#rank").innerHTML = list.map((p,i) => `<div class="hof-row rv">
     <span class="hof-rank">${String(i+1).padStart(2,"0")}</span>
-    <div><div class="hof-name">${esc(p.n)}${p.d?`<span class="rip">† ${p.d}</span>`:""}</div>
-      <div class="mono muted" style="margin-top:4px">${esc(p.b)} · ${esc(p.gear)}</div>
+    <div><div class="hof-name" translate="no">${esc(p.n)}${p.d?`<span class="rip">† ${p.d}</span>`:""}</div>
+      <div class="mono muted" translate="no" style="margin-top:4px">${esc(p.b)} · ${esc(p.gear)}</div>
       <p class="muted" style="font-size:.92rem;margin-top:4px">${esc(p.why)}</p>${vu(p.sc)}</div>
     <div class="vote"><button data-v="${esc(p.n)}" class="${my.includes(p.n)?"voted":""}" aria-pressed="${my.includes(p.n)}" aria-label="Vota ${esc(p.n)}">▲</button><span>${p.sc}</span></div>
   </div>`).join("");
